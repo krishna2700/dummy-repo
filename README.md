@@ -1,75 +1,75 @@
-# Introduction à React (en français)
+# Introducción a React (en español)
 
-## Qu’est-ce que React ?
-React est une bibliothèque JavaScript créée pour construire des interfaces utilisateur (UI) de manière **modulaire**, **rapide** et **maintenable**. Elle est principalement utilisée pour développer des applications web modernes basées sur des composants.
+## ¿Qué es React?
+React es una biblioteca JavaScript creada para construir interfaces de usuario (UI) de manera **modular**, **rápida** y **mantenible**. Se utiliza principalmente para desarrollar aplicaciones web modernas basadas en componentes.
 
-## Pourquoi utiliser React ?
-- **Composants réutilisables** : vous découpez l’interface en blocs indépendants.
-- **Rendu efficace** : React met à jour le DOM de façon optimisée.
-- **Écosystème riche** : outils, bibliothèques, communauté très active.
-- **Bonne maintenabilité** : architecture claire pour les applications qui évoluent.
+## ¿Por qué usar React?
+- **Componentes reutilizables**: divides la interfaz en bloques independientes.
+- **Renderizado eficiente**: React actualiza el DOM de forma optimizada.
+- **Ecosistema rico**: herramientas, bibliotecas y una comunidad muy activa.
+- **Buena mantenibilidad**: arquitectura clara para aplicaciones que evolucionan.
 
-## Concepts clés
+## Conceptos clave
 
-### 1) Les composants
-Un composant est une fonction (ou classe) qui retourne de l’interface.
+### 1) Los componentes
+Un componente es una función (o clase) que retorna interfaz.
 
-- **Composant parent** : contient d’autres composants.
-- **Composant enfant** : reçoit des données du parent.
+- **Componente padre**: contiene otros componentes.
+- **Componente hijo**: recibe datos del padre.
 
 ### 2) JSX
-JSX est une syntaxe qui ressemble à du HTML dans JavaScript.
+JSX es una sintaxis que se parece a HTML dentro de JavaScript.
 
-Exemple :
+Ejemplo:
 ```jsx
-const element = <h1>Bonjour React</h1>;
+const element = <h1>Hola React</h1>;
 ```
 
 ### 3) Props
-Les **props** sont des données passées d’un composant parent vers un composant enfant.
-Elles sont en lecture seule dans le composant enfant.
+Las **props** son datos que se pasan de un componente padre a un componente hijo.
+Son de solo lectura dentro del componente hijo.
 
 ### 4) State
-Le **state** représente les données internes d’un composant qui peuvent changer dans le temps (interaction utilisateur, réponse API, etc.).
+El **state** representa los datos internos de un componente que pueden cambiar con el tiempo (interacción del usuario, respuesta de API, etc.).
 
-### 5) Flux de données unidirectionnel
-En React, les données circulent principalement du parent vers l’enfant. Ce modèle rend le comportement de l’application plus prévisible.
+### 5) Flujo de datos unidireccional
+En React, los datos fluyen principalmente del padre hacia el hijo. Este modelo hace que el comportamiento de la aplicación sea más predecible.
 
-## Hooks essentiels
+## Hooks esenciales
 
 ### useState
-Permet de gérer un état local dans un composant fonctionnel.
+Permite gestionar un estado local en un componente funcional.
 
 ### useEffect
-Permet d’exécuter des effets secondaires (appel API, abonnement, timers, etc.) après le rendu.
+Permite ejecutar efectos secundarios (llamadas a API, suscripciones, temporizadores, etc.) después del renderizado.
 
-## Exemple minimal
+## Ejemplo mínimo
 
 ```jsx
 import { useState } from 'react';
 
-function Compteur() {
+function Contador() {
   const [count, setCount] = useState(0);
 
   return (
     <div>
-      <p>Compteur : {count}</p>
+      <p>Contador: {count}</p>
       <button onClick={() => setCount(count + 1)}>
-        Incrémenter
+        Incrementar
       </button>
     </div>
   );
 }
 
-export default Compteur;
+export default Contador;
 ```
 
-## Bonnes pratiques pour débuter
-- Garder les composants petits et lisibles.
-- Nommer clairement les composants et les variables.
-- Éviter la logique métier trop lourde dans l’UI.
-- Factoriser les parties réutilisables.
-- Ajouter des tests au fur et à mesure de la croissance du projet.
+## Buenas prácticas para empezar
+- Mantener los componentes pequeños y legibles.
+- Nombrar claramente los componentes y las variables.
+- Evitar lógica de negocio demasiado pesada en la UI.
+- Factorizar las partes reutilizables.
+- Agregar pruebas a medida que el proyecto crece.
 
-## Conclusion
-React est une excellente porte d’entrée pour construire des interfaces modernes et robustes. En maîtrisant composants, props, state et hooks, vous pouvez développer des applications évolutives et professionnelles.
+## Conclusión
+React es una excelente puerta de entrada para construir interfaces modernas y robustas. Dominando componentes, props, state y hooks, puedes desarrollar aplicaciones escalables y profesionales.
