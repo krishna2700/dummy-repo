@@ -13,7 +13,7 @@ This project includes:
 
 - `hello.js` - A simple "Hello, World!" JavaScript example
 - `README.md` - Main README (this file, in English)
-- `README.en.md` - English introduction to React
+- `README.fr.md` - Detailed introduction to React in French
 - `README.es.md` - React introduction in Spanish
 
 ## Getting Started
@@ -30,8 +30,8 @@ This will output: `Hello, World!`
 
 ## Documentation
 
-### English Documentation
-For a comprehensive guide to React concepts in English, see [README.en.md](./README.en.md).
+### French Documentation
+For a comprehensive guide to React concepts in French, see [README.fr.md](./README.fr.md).
 
 Topics covered:
 - What is React?
@@ -61,7 +61,7 @@ This project serves as an educational resource for:
 ## Languages Supported
 
 - 🇺🇸 English (main README)
-- 🇬🇧 English detailed (README.en.md)
+- 🇫🇷 French (README.fr.md)
 - 🇪🇸 Spanish (README.es.md)
 
 ---
