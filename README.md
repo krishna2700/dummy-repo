@@ -1,49 +1,119 @@
-# Introduction à React (en français)
+# React — Introduction (en français)
 
-## Qu’est-ce que React ?
-React est une bibliothèque JavaScript créée pour construire des interfaces utilisateur (UI) de manière **modulaire**, **rapide** et **maintenable**. Elle est principalement utilisée pour développer des applications web modernes basées sur des composants.
+> Une bibliothèque JavaScript pour construire des interfaces utilisateur modernes, modulaires et performantes.
+
+---
+
+## Table des matières
+
+- [Qu'est-ce que React ?](#quest-ce-que-react-)
+- [Pourquoi utiliser React ?](#pourquoi-utiliser-react-)
+- [Concepts clés](#concepts-clés)
+- [Hooks essentiels](#hooks-essentiels)
+- [Exemple minimal](#exemple-minimal)
+- [Bonnes pratiques](#bonnes-pratiques)
+- [Conclusion](#conclusion)
+
+---
+
+## Qu'est-ce que React ?
+
+React est une **bibliothèque JavaScript** open-source créée par Facebook, conçue pour construire des interfaces utilisateur (UI) de manière **modulaire**, **rapide** et **maintenable**.
+
+Elle est au cœur de nombreuses applications web modernes et repose sur un modèle de **composants réutilisables**.
+
+---
 
 ## Pourquoi utiliser React ?
-- **Composants réutilisables** : vous découpez l’interface en blocs indépendants.
-- **Rendu efficace** : React met à jour le DOM de façon optimisée.
-- **Écosystème riche** : outils, bibliothèques, communauté très active.
-- **Bonne maintenabilité** : architecture claire pour les applications qui évoluent.
+
+| Avantage | Description |
+|---|---|
+| Composants réutilisables | Découpez l'interface en blocs indépendants et réutilisables |
+| Rendu efficace | React met à jour le DOM de façon optimisée via le Virtual DOM |
+| Écosystème riche | Outils, bibliothèques et communauté très active |
+| Maintenabilité | Architecture claire pour les applications qui évoluent |
+| TypeScript friendly | Intégration TypeScript native et mature |
+
+---
 
 ## Concepts clés
 
-### 1) Les composants
-Un composant est une fonction (ou classe) qui retourne de l’interface.
+### 1. Les composants
 
-- **Composant parent** : contient d’autres composants.
-- **Composant enfant** : reçoit des données du parent.
+Un composant est une **fonction** (ou classe) qui retourne du JSX (de l'interface).
 
-### 2) JSX
-JSX est une syntaxe qui ressemble à du HTML dans JavaScript.
-
-Exemple :
-```jsx
-const element = <h1>Bonjour React</h1>;
+```
+App (composant racine)
+├── Header
+├── Main
+│   ├── ArticleList
+│   │   └── ArticleItem
+│   └── Sidebar
+└── Footer
 ```
 
-### 3) Props
-Les **props** sont des données passées d’un composant parent vers un composant enfant.
-Elles sont en lecture seule dans le composant enfant.
+- **Composant parent** : contient et orchestre d'autres composants.
+- **Composant enfant** : reçoit des données via les `props`.
 
-### 4) State
-Le **state** représente les données internes d’un composant qui peuvent changer dans le temps (interaction utilisateur, réponse API, etc.).
+### 2. JSX
 
-### 5) Flux de données unidirectionnel
-En React, les données circulent principalement du parent vers l’enfant. Ce modèle rend le comportement de l’application plus prévisible.
+JSX est une **extension de syntaxe** qui ressemble à du HTML dans JavaScript. Il est transpilé en appels `React.createElement()`.
+
+```jsx
+// JSX
+const element = <h1 className="title">Bonjour React !</h1>;
+
+// Équivalent JS pur
+const element = React.createElement('h1', { className: 'title' }, 'Bonjour React !');
+```
+
+### 3. Props
+
+Les **props** (propriétés) sont des données passées d'un composant **parent** vers un composant **enfant**. Elles sont **en lecture seule**.
+
+```jsx
+function Salutation({ nom, age }) {
+  return <p>Bonjour {nom}, vous avez {age} ans.</p>;
+}
+
+// Utilisation
+<Salutation nom="Alice" age={30} />
+```
+
+### 4. State
+
+Le **state** représente les données **internes et dynamiques** d'un composant. Il peut changer suite à une interaction utilisateur ou une réponse d'API.
+
+```jsx
+const [isOpen, setIsOpen] = useState(false);
+```
+
+### 5. Flux de données unidirectionnel
+
+En React, les données circulent **du parent vers l'enfant**. Ce modèle rend le comportement de l'application plus **prévisible** et **facile à déboguer**.
+
+```
+Parent  →  (props)  →  Enfant
+Enfant  →  (callback / événement)  →  Parent
+```
+
+---
 
 ## Hooks essentiels
 
-### useState
-Permet de gérer un état local dans un composant fonctionnel.
+| Hook | Rôle |
+|---|---|
+| `useState` | Gérer un état local dans un composant fonctionnel |
+| `useEffect` | Exécuter des effets secondaires (API, timers, abonnements) |
+| `useContext` | Accéder à un contexte global sans prop drilling |
+| `useRef` | Référencer un élément DOM ou une valeur persistante |
+| `useMemo` / `useCallback` | Optimiser les performances en mémorisant valeurs et fonctions |
 
-### useEffect
-Permet d’exécuter des effets secondaires (appel API, abonnement, timers, etc.) après le rendu.
+---
 
 ## Exemple minimal
+
+Un compteur interactif illustrant `useState` :
 
 ```jsx
 import { useState } from 'react';
@@ -52,11 +122,11 @@ function Compteur() {
   const [count, setCount] = useState(0);
 
   return (
-    <div>
-      <p>Compteur : {count}</p>
-      <button onClick={() => setCount(count + 1)}>
-        Incrémenter
-      </button>
+    <div className="compteur">
+      <h2>Compteur : {count}</h2>
+      <button onClick={() => setCount(count + 1)}>+ Incrémenter</button>
+      <button onClick={() => setCount(count - 1)}>- Décrémenter</button>
+      <button onClick={() => setCount(0)}>Réinitialiser</button>
     </div>
   );
 }
@@ -64,12 +134,27 @@ function Compteur() {
 export default Compteur;
 ```
 
-## Bonnes pratiques pour débuter
-- Garder les composants petits et lisibles.
-- Nommer clairement les composants et les variables.
-- Éviter la logique métier trop lourde dans l’UI.
-- Factoriser les parties réutilisables.
-- Ajouter des tests au fur et à mesure de la croissance du projet.
+---
+
+## Bonnes pratiques
+
+- **Petits composants** : chaque composant doit avoir une seule responsabilité.
+- **Nommage clair** : utilisez des noms explicites pour les composants et les variables.
+- **Séparation UI / logique** : évitez la logique métier dans les composants d'affichage.
+- **Factorisation** : identifiez et réutilisez les parties communes.
+- **Tests** : ajoutez des tests unitaires et d'intégration au fur et à mesure.
+- **Accessibilité** : utilisez des attributs ARIA et des balises sémantiques HTML5.
+
+---
 
 ## Conclusion
-React est une excellente porte d’entrée pour construire des interfaces modernes et robustes. En maîtrisant composants, props, state et hooks, vous pouvez développer des applications évolutives et professionnelles.
+
+React est une excellente porte d'entrée pour construire des interfaces modernes et robustes. En maîtrisant **composants**, **props**, **state** et **hooks**, vous pouvez développer des applications évolutives et professionnelles.
+
+**Ressources utiles :**
+- [Documentation officielle React](https://react.dev)
+- [React sur GitHub](https://github.com/facebook/react)
+
+---
+
+*Voir aussi : [README en español](./README.es.md)*
