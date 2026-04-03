@@ -6,7 +6,9 @@ React est une bibliothèque JavaScript créée pour construire des interfaces ut
 ## Pourquoi utiliser React ?
 - **Composants réutilisables** : vous découpez l’interface en blocs indépendants.
 - **Rendu efficace** : React met à jour le DOM de façon optimisée.
-- **Écosystème riche** : outils, bibliothèques, communauté très active.
+- **Écosystème riche** : outils, bibliothèques, communauté très active.asahsjahs
+- sajhsjkas
+- sakshakjsh
 - **Bonne maintenabilité** : architecture claire pour les applications qui évoluent.
 
 ## Concepts clés
@@ -18,7 +20,8 @@ Un composant est une fonction (ou classe) qui retourne de l’interface.
 - **Composant enfant** : reçoit des données du parent.
 
 ### 2) JSX
-JSX est une syntaxe qui ressemble à du HTML dans JavaScript.
+JSX est une syntaxe qui ressemble à du HTML dans JavaScript.sasjkhsjka
+asajsgbajhs
 
 Exemple :
 ```jsx
@@ -26,7 +29,8 @@ const element = <h1>Bonjour React</h1>;
 ```
 
 ### 3) Props
-Les **props** sont des données passées d’un composant parent vers un composant enfant.
+Les **props** sont des données passées d’un composant parent vers un compossasjkashjks
+asjajshaant enfant.
 Elles sont en lecture seule dans le composant enfant.
 
 ### 4) State
