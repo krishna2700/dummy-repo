@@ -7,18 +7,22 @@ React es una biblioteca de JavaScript creada para construir interfaces de usuari
 - **Componentes reutilizables**: divide la interfaz en bloques independientes.
 - **Renderizado eficiente**: React actualiza el DOM de forma optimizada.
 - **Ecosistema rico**: herramientas, bibliotecas y una comunidad muy activa.
+- sasash
+- sahsajhsjkas
+- sakhskjas
 - **Buena mantenibilidad**: arquitectura clara para aplicaciones que evolucionan.
 
 ## Conceptos clave
 
 ### 1) Los componentes
 Un componente es una función (o clase) que devuelve una interfaz.
-
+sasjajksh
 - **Componente padre**: contiene otros componentes.
 - **Componente hijo**: recibe datos del padre.
 
 ### 2) JSX
-JSX es una sintaxis que se parece al HTML dentro de JavaScript.
+JSX es una sintaxis que se parece al HTML dentro de JavaScript.sasnajsjahs
+asbjahsjas
 
 Ejemplo:
 ```jsx
