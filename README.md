@@ -1,79 +1,57 @@
-# Introduction à React (en français)
+# Proyecto de Ejemplo en JavaScript
 
-## Qu’est-ce que React ?
-React est une bibliothèque JavaScript créée pour construire des interfaces utilisateur (UI) de manière **modulaire**, **rapide** et **maintenable**. Elle est principalement utilisée pour développer des applications web modernes basées sur des composants.
+Bienvenido a este repositorio de ejemplo. Este proyecto contiene un script básico en JavaScript que sirve como punto de partida para aprender y experimentar con el lenguaje.
 
-## Pourquoi utiliser React ?
-- **Composants réutilisables** : vous découpez l’interface en blocs indépedsadsadndants.
-- **Rendu efficace** : React met à jour le DOM de façon optimisée.
-- **Écosystème riche** : outils, bibliothèques, communauté très sadsad.asahsjahs
-- sajhsjkas
-- sakshakjshdasdasd
-- **Bonne maintenabilité** : architecture claire pour les applications qui évoluent.
-sadas
-## Concepts clés
+## Descripción
 
-### 1) Les composantsdasdas
-Un composant est une fonction (ou classe) qui retourne de l’interface.
+Este proyecto incluye un archivo `hello.js` que imprime un mensaje en la consola. Es ideal para quienes están comenzando con JavaScript o quieren explorar la estructura básica de un repositorio.
 
-- **Composant parent** : contient d’autdasdasdres composants.
-- **Composant enfant** : reçoit des données du parent.
-sadasd
-### 2) JSX
-JSX est une syntaxe qui ressemble à dudasdasdasd HTML dans JsadasdavaScript.sasjkhsjka
-asajsgbajhssadsadsa
-dasdasd
-Exemple :
-```jsx
-const element = <h1>Bonjour React</h1>;
+## Requisitos previos
+
+- [Node.js](https://nodejs.org/) versión 14 o superior
+- npm (incluido con Node.js)
+
+## Instalación
+
+Clona el repositorio en tu máquina local:
+
+```bash
+git clone https://github.com/krishna2700/dummy-repo.git
+cd dummy-repo
 ```
 
-### 3) Props
-Les **props** sont des données passées d’un composant parent vers un compossasjkashjks
-asjajshaant enfant.
-Elles sont en lecture seule dans le composant enfant.
+## Uso
 
-### 4) State
-Le **state** représente les données internes d’un composant qui peuvent changer dans le temps (interaction utilisateur, réponse API, etc.).
+Ejecuta el script principal con el siguiente comando:
 
-### 5) Flux de données unidirectionnel
-En React, les données circulent principalement du parent vers l’enfant. Ce modèle rend le comportement de l’application plus prévisible.
-
-## Hooks essentiels
-
-### useState
-Permet de gérer un état local dans un composant fonctionnel.
-
-### useEffect
-Permet d’exécuter des effets secondaires (appel API, abonnement, timers, etc.) après le rendu.
-
-## Exemple minimal
-
-```jsx
-import { useState } from 'react';
-
-function Compteur() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <div>
-      <p>Compteur : {count}</p>
-      <button onClick={() => setCount(count + 1)}>
-        Incrémenter
-      </button>
-    </div>
-  );
-}
-
-export default Compteur;
+```bash
+node hello.js
 ```
 
-## Bonnes pratiques pour débuter
-- Garder les composants petits et lisibles.
-- Nommer clairement les composants et les variables.
-- Éviter la logique métier trop lourde dans l’UI.
-- Factoriser les parties réutilisables.
-- Ajouter des tests au fur et à mesure de la croissance du projet.
+Deberías ver en la consola:
 
-## Conclusion
-React est une excellente porte d’entrée pour construire des interfaces modernes et robustes. En maîtrisant composants, props, state et hooks, vous pouvez développer des applications évolutives et professionnelles.
+```
+Hello, World!
+```
+
+## Estructura del proyecto
+
+```
+dummy-repo/
+├── hello.js       # Script principal de ejemplo
+└── README.md      # Documentación del proyecto
+```
+
+## Contribuciones
+
+Las contribuciones son bienvenidas. Si deseas mejorar este proyecto:
+
+1. Haz un fork del repositorio.
+2. Crea una rama con tu nueva funcionalidad: `git checkout -b mi-nueva-funcionalidad`
+3. Realiza tus cambios y haz commit: `git commit -m "Agrega nueva funcionalidad"`
+4. Sube los cambios a tu fork: `git push origin mi-nueva-funcionalidad`
+5. Abre un Pull Request.
+
+## Licencia
+
+Este proyecto se distribuye bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
