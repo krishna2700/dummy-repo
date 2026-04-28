@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Counter App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #fff;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 48px 56px;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+      width: 360px;
+    }
+
+    .card h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 32px;
+    }
+
+    .display {
+      font-size: 6rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 12px;
+      transition: transform 0.12s ease, color 0.25s ease;
+      user-select: none;
+    }
+
+    .display.positive { color: #7effa0; }
+    .display.negative { color: #ff7e7e; }
+    .display.zero     { color: #ffffff; }
+
+    .display.bump {
+      transform: scale(1.15);
+    }
+
+    .step-label {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 36px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 50%;
+      width: 64px;
+      height: 64px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+    }
+
+    button:active { transform: scale(0.93) !important; }
+
+    .btn-dec {
+      background: rgba(255, 100, 100, 0.2);
+      color: #ff7e7e;
+      border: 1px solid rgba(255, 100, 100, 0.35);
+    }
+    .btn-dec:hover {
+      background: rgba(255, 100, 100, 0.35);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255, 100, 100, 0.3);
+    }
+
+    .btn-inc {
+      background: rgba(100, 255, 160, 0.2);
+      color: #7effa0;
+      border: 1px solid rgba(100, 255, 160, 0.35);
+    }
+    .btn-inc:hover {
+      background: rgba(100, 255, 160, 0.35);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(100, 255, 160, 0.3);
+    }
+
+    .btn-reset {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .btn-reset:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+    }
+
+    .step-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .step-row span {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .step-row input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 120px;
+      height: 4px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.2);
+      outline: none;
+      cursor: pointer;
+    }
+    .step-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #a78bfa;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(167,139,250,0.6);
+    }
+
+    .history {
+      margin-top: 28px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      height: 18px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Counter</h1>
+    <div class="display zero" id="display">0</div>
+    <div class="step-label" id="step-label">step: 1</div>
+
+    <div class="controls">
+      <button class="btn-dec" id="btn-dec" title="Decrement">−</button>
+      <button class="btn-reset" id="btn-reset" title="Reset">↺</button>
+      <button class="btn-inc" id="btn-inc" title="Increment">+</button>
+    </div>
+
+    <div class="step-row">
+      <span>Step</span>
+      <input type="range" id="step-slider" min="1" max="100" value="1" />
+      <span id="step-val">1</span>
+    </div>
+
+    <div class="history" id="history"></div>
+  </div>
+
+  <script>
+    let count = 0;
+    let step = 1;
+    const history = [];
+
+    const display   = document.getElementById('display');
+    const stepLabel = document.getElementById('step-label');
+    const stepSlider = document.getElementById('step-slider');
+    const stepVal   = document.getElementById('step-val');
+    const historyEl = document.getElementById('history');
+
+    function updateDisplay(newCount) {
+      count = newCount;
+      display.textContent = count;
+
+      display.classList.remove('positive', 'negative', 'zero', 'bump');
+      void display.offsetWidth; // reflow to restart animation
+      display.classList.add(count > 0 ? 'positive' : count < 0 ? 'negative' : 'zero', 'bump');
+
+      setTimeout(() => display.classList.remove('bump'), 150);
+
+      stepLabel.textContent = `step: ${step}`;
+
+      if (history.length > 8) history.shift();
+      historyEl.textContent = history.length
+        ? 'History: ' + history.join(' → ')
+        : '';
+    }
+
+    document.getElementById('btn-inc').addEventListener('click', () => {
+      history.push(count);
+      updateDisplay(count + step);
+    });
+
+    document.getElementById('btn-dec').addEventListener('click', () => {
+      history.push(count);
+      updateDisplay(count - step);
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      history.length = 0;
+      historyEl.textContent = '';
+      updateDisplay(0);
+    });
+
+    stepSlider.addEventListener('input', () => {
+      step = parseInt(stepSlider.value, 10);
+      stepVal.textContent = step;
+      stepLabel.textContent = `step: ${step}`;
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp'   || e.key === '+') document.getElementById('btn-inc').click();
+      if (e.key === 'ArrowDown' || e.key === '-') document.getElementById('btn-dec').click();
+      if (e.key === 'r' || e.key === 'R')          document.getElementById('btn-reset').click();
+    });
+  </script>
+</body>
+</html>
