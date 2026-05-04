@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dummy Button</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f4f8;
+      font-family: system-ui, sans-serif;
+    }
+
+    .dummy-button {
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      background-color: #4f46e5;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+    }
+
+    .dummy-button:hover {
+      background-color: #4338ca;
+      transform: translateY(-2px);
+    }
+
+    .dummy-button:active {
+      transform: translateY(0);
+      background-color: #3730a3;
+    }
+  </style>
+</head>
+<body>
+  <button class="dummy-button" onclick="alert('Button clicked!')">Click Me</button>
+</body>
+</html>
