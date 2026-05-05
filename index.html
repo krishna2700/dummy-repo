@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SprintBoard — Company Todo Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3247;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #a855f7;
+      --text: #e2e8f0;
+      --muted: #8892a4;
+      --card-radius: 14px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 20px;
+    }
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .header-meta {
+      display: flex; align-items: center; gap: 16px;
+      font-size: 13px; color: var(--muted);
+    }
+    .sprint-badge {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .avatar-group { display: flex; }
+    .avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: 2px solid var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      margin-left: -6px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .avatar:first-child { margin-left: 0; }
+    .avatar:hover { transform: scale(1.15); z-index: 5; }
+
+    /* MAIN LAYOUT */
+    .app {
+      display: flex;
+      flex-direction: column;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px 24px;
+      gap: 24px;
+    }
+
+    /* SPRINT META BAR */
+    .sprint-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .sprint-info h1 {
+      font-size: 22px; font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .sprint-info p { font-size: 13px; color: var(--muted); }
+    .sprint-dates {
+      font-size: 13px; color: var(--muted);
+      display: flex; gap: 6px; align-items: center;
+    }
+    .sprint-dates strong { color: var(--text); }
+
+    /* STAT CARDS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 28px; font-weight: 800; }
+    .stat-sub { font-size: 12px; color: var(--muted); }
+
+    /* PROGRESS BAR */
+    .progress-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 20px 24px;
+    }
+    .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .progress-header h3 { font-size: 14px; font-weight: 600; }
+    .progress-pct { font-size: 14px; font-weight: 700; color: var(--accent2); }
+    .progress-track {
+      width: 100%; height: 8px;
+      background: var(--surface2);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+      border-radius: 999px;
+      transition: width 0.6s ease;
+    }
+
+    /* FILTERS */
+    .filters {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px; font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent2); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .search-input {
+      margin-left: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      width: 220px;
+      transition: border-color 0.15s;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--muted); }
+
+    /* KANBAN BOARD */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 1100px) { .board { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .board { grid-template-columns: 1fr; } }
+
+    .column {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      overflow: hidden;
+    }
+    .column-header {
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .col-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .column-title { font-size: 13px; font-weight: 600; flex: 1; }
+    .col-count {
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px;
+    }
+
+    .task-list { padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 60px; }
+
+    /* TASK CARD */
+    .task-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      position: relative;
+    }
+    .task-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      border-color: var(--accent);
+    }
+    .task-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .task-id { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; }
+    .task-priority {
+      font-size: 10px; font-weight: 700; padding: 2px 7px;
+      border-radius: 999px; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .priority-critical { background: rgba(239,68,68,0.18); color: #f87171; }
+    .priority-high { background: rgba(245,158,11,0.18); color: #fbbf24; }
+    .priority-medium { background: rgba(99,102,241,0.18); color: #a5b4fc; }
+    .priority-low { background: rgba(16,185,129,0.18); color: #6ee7b7; }
+
+    .task-title { font-size: 13px; font-weight: 600; line-height: 1.45; margin-bottom: 8px; }
+    .task-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+    .task-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+    .tag {
+      font-size: 10px; font-weight: 600; padding: 2px 7px;
+      border-radius: 5px;
+      background: rgba(99,102,241,0.15); color: var(--accent2);
+      border: 1px solid rgba(99,102,241,0.25);
+    }
+    .task-footer { display: flex; align-items: center; justify-content: space-between; }
+    .task-assignee {
+      width: 24px; height: 24px; border-radius: 50%;
+      font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .task-meta { display: flex; align-items: center; gap: 10px; }
+    .task-pts {
+      font-size: 11px; color: var(--muted);
+      display: flex; align-items: center; gap: 3px;
+    }
+    .task-pts span { color: var(--accent2); font-weight: 700; }
+    .task-due { font-size: 11px; color: var(--muted); }
+    .task-due.overdue { color: #f87171; }
+
+    /* STATUS colors */
+    .dot-todo { background: #64748b; }
+    .dot-inprogress { background: #3b82f6; }
+    .dot-review { background: #f59e0b; }
+    .dot-done { background: #10b981; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 200;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      width: 100%; max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 28px;
+      animation: slideUp 0.2s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .modal-header h2 { font-size: 17px; font-weight: 700; line-height: 1.4; max-width: 420px; }
+    .modal-close {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 8px;
+      width: 32px; height: 32px;
+      font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; flex-shrink: 0;
+    }
+    .modal-close:hover { background: var(--border); color: var(--text); }
+    .modal-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+    .modal-field { flex: 1; min-width: 140px; }
+    .modal-field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .modal-field .val {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 12px; font-size: 13px; color: var(--text);
+    }
+    .modal-desc-section { margin-bottom: 18px; }
+    .modal-desc-section label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .modal-desc-section p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+    .modal-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .modal-subtasks { display: flex; flex-direction: column; gap: 8px; }
+    .subtask-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+    .subtask-check {
+      width: 16px; height: 16px; border-radius: 4px;
+      border: 1.5px solid var(--border); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .subtask-check.checked { background: var(--green); border-color: var(--green); }
+    .subtask-check.checked::after { content: '✓'; font-size: 10px; color: #fff; font-weight: 700; }
+    .subtask-text.done { text-decoration: line-through; color: var(--muted); }
+
+    /* STATUS CHANGE DROPDOWN */
+    .status-select {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 12px; font-size: 13px; color: var(--text);
+      font-family: inherit; outline: none; cursor: pointer; width: 100%;
+    }
+    .btn-update {
+      margin-top: 18px; width: 100%;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: #fff; border: none; border-radius: 10px;
+      padding: 12px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: opacity 0.15s; font-family: inherit;
+    }
+    .btn-update:hover { opacity: 0.88; }
+
+    /* ADD TASK BUTTON */
+    .add-task-btn {
+      width: 100%; margin: 6px 0 0;
+      background: transparent; border: 1px dashed var(--border);
+      color: var(--muted); border-radius: 10px;
+      padding: 9px; font-size: 13px; cursor: pointer;
+      transition: all 0.15s; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .add-task-btn:hover { border-color: var(--accent); color: var(--accent2); background: rgba(99,102,241,0.05); }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--surface);
+      border: 1px solid var(--green);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px; font-weight: 500;
+      color: var(--green);
+      transform: translateY(60px); opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 300;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    SprintBoard
+  </div>
+  <div class="header-meta">
+    <span class="sprint-badge">Sprint 12</span>
+    <span>TechNova Inc.</span>
+    <div class="avatar-group" title="Team members">
+      <div class="avatar" style="background:#6366f1" title="Alex Chen">AC</div>
+      <div class="avatar" style="background:#10b981" title="Sara Kim">SK</div>
+      <div class="avatar" style="background:#f59e0b" title="Omar Farid">OF</div>
+      <div class="avatar" style="background:#ef4444" title="Priya Nair">PN</div>
+      <div class="avatar" style="background:#a855f7" title="Luis Torres">LT</div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN APP -->
+<div class="app">
+
+  <!-- SPRINT META -->
+  <div class="sprint-bar">
+    <div class="sprint-info">
+      <h1>Sprint 12 — Platform Upgrade</h1>
+      <p>Q2 2026 · Engineering &amp; Product Team</p>
+    </div>
+    <div class="sprint-dates">
+      <span>Apr 21 – May 2, 2026</span>
+      &nbsp;·&nbsp;
+      <strong id="daysLeft">2 days left</strong>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-label">Total Tasks</div>
+      <div class="stat-value" id="statTotal">16</div>
+      <div class="stat-sub">across 4 columns</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Completed</div>
+      <div class="stat-value" style="color:var(--green)" id="statDone">4</div>
+      <div class="stat-sub">tasks closed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">In Progress</div>
+      <div class="stat-value" style="color:var(--blue)" id="statInProg">5</div>
+      <div class="stat-sub">active right now</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Story Points</div>
+      <div class="stat-value" style="color:var(--accent2)" id="statPts">48</div>
+      <div class="stat-sub">of 89 delivered</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Blocked</div>
+      <div class="stat-value" style="color:var(--red)" id="statBlocked">1</div>
+      <div class="stat-sub">needs attention</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <h3>Sprint Progress</h3>
+      <div class="progress-pct" id="progPct">54%</div>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progFill" style="width:54%"></div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+    <button class="filter-btn" onclick="setFilter('critical', this)">🔴 Critical</button>
+    <button class="filter-btn" onclick="setFilter('high', this)">🟡 High</button>
+    <button class="filter-btn" onclick="setFilter('medium', this)">🔵 Medium</button>
+    <button class="filter-btn" onclick="setFilter('low', this)">🟢 Low</button>
+    <button class="filter-btn" onclick="setFilter('mine', this)">My Tasks</button>
+    <input class="search-input" id="searchInput" placeholder="Search tasks..." oninput="renderBoard()" />
+  </div>
+
+  <!-- BOARD -->
+  <div class="board" id="board"></div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2 id="mTitle"></h2>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field"><label>Task ID</label><div class="val" id="mId"></div></div>
+      <div class="modal-field"><label>Priority</label><div class="val" id="mPriority"></div></div>
+      <div class="modal-field"><label>Assignee</label><div class="val" id="mAssignee"></div></div>
+      <div class="modal-field"><label>Story Points</label><div class="val" id="mPts"></div></div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field"><label>Due Date</label><div class="val" id="mDue"></div></div>
+      <div class="modal-field"><label>Team</label><div class="val" id="mTeam"></div></div>
+    </div>
+    <div class="modal-desc-section">
+      <label>Description</label>
+      <p id="mDesc"></p>
+    </div>
+    <div class="modal-desc-section">
+      <label>Tags</label>
+      <div class="modal-tags" id="mTags"></div>
+    </div>
+    <div class="modal-desc-section" id="mSubtaskSection">
+      <label>Subtasks</label>
+      <div class="modal-subtasks" id="mSubtasks"></div>
+    </div>
+    <div class="modal-field" style="margin-bottom:0">
+      <label>Move Status</label>
+      <select class="status-select" id="mStatusSelect">
+        <option value="todo">To Do</option>
+        <option value="inprogress">In Progress</option>
+        <option value="review">In Review</option>
+        <option value="done">Done</option>
+      </select>
+    </div>
+    <button class="btn-update" onclick="updateTaskStatus()">Update Status</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Task status updated</div>
+
+<script>
+const TEAM = {
+  AC: { name: 'Alex Chen',    color: '#6366f1', role: 'Backend Eng' },
+  SK: { name: 'Sara Kim',     color: '#10b981', role: 'Frontend Eng' },
+  OF: { name: 'Omar Farid',   color: '#f59e0b', role: 'DevOps' },
+  PN: { name: 'Priya Nair',   color: '#ef4444', role: 'QA Lead' },
+  LT: { name: 'Luis Torres',  color: '#a855f7', role: 'Product' },
+};
+
+let tasks = [
+  // TO DO
+  {
+    id: 'TN-047', status: 'todo', priority: 'critical', pts: 8,
+    title: 'Migrate authentication service to OAuth 2.0',
+    desc: 'Replace legacy session-based auth with OAuth 2.0 + PKCE flow. Update all API gateways and downstream service clients.',
+    assignee: 'AC', team: 'Platform', due: '2026-05-02', blocked: true,
+    tags: ['auth', 'security', 'breaking-change'],
+    subtasks: [
+      { text: 'Audit current session logic', done: true },
+      { text: 'Implement OAuth provider', done: false },
+      { text: 'Update API clients', done: false },
+      { text: 'E2E auth test suite', done: false },
+    ]
+  },
+  {
+    id: 'TN-051', status: 'todo', priority: 'high', pts: 5,
+    title: 'Design new onboarding wizard for B2B clients',
+    desc: 'Create multi-step onboarding flow with company profile setup, team invitations, and initial data import configuration.',
+    assignee: 'LT', team: 'Product', due: '2026-05-01',
+    tags: ['onboarding', 'ux', 'b2b'],
+    subtasks: [
+      { text: 'Wireframes approved', done: true },
+      { text: 'Figma prototype', done: false },
+      { text: 'Dev handoff', done: false },
+    ]
+  },
+  {
+    id: 'TN-056', status: 'todo', priority: 'medium', pts: 3,
+    title: 'Add CSV export to analytics dashboard',
+    desc: 'Users should be able to export filtered dashboard data to CSV format with configurable date ranges.',
+    assignee: 'SK', team: 'Frontend', due: '2026-05-02',
+    tags: ['analytics', 'export', 'ui'],
+    subtasks: []
+  },
+  {
+    id: 'TN-059', status: 'todo', priority: 'low', pts: 2,
+    title: 'Update API rate limit documentation',
+    desc: 'Revise public-facing docs to reflect new per-endpoint rate limits introduced in v3.4 release.',
+    assignee: 'LT', team: 'Product', due: '2026-05-02',
+    tags: ['docs', 'api'],
+    subtasks: []
+  },
+
+  // IN PROGRESS
+  {
+    id: 'TN-038', status: 'inprogress', priority: 'critical', pts: 13,
+    title: 'Refactor database connection pooling layer',
+    desc: 'Switch from single-connection model to PgBouncer-backed pool. Reduces p99 latency by ~40% under peak load.',
+    assignee: 'AC', team: 'Platform', due: '2026-04-30',
+    tags: ['database', 'performance', 'backend'],
+    subtasks: [
+      { text: 'Set up PgBouncer in staging', done: true },
+      { text: 'Update ORM config', done: true },
+      { text: 'Load test with k6', done: false },
+      { text: 'Canary deploy to prod', done: false },
+    ]
+  },
+  {
+    id: 'TN-042', status: 'inprogress', priority: 'high', pts: 8,
+    title: 'Build real-time notification system (WebSocket)',
+    desc: 'Implement WebSocket server with Redis pub/sub backend. Supports in-app alerts, task updates, and system events.',
+    assignee: 'AC', team: 'Platform', due: '2026-05-01',
+    tags: ['websocket', 'realtime', 'redis'],
+    subtasks: [
+      { text: 'WebSocket server scaffolding', done: true },
+      { text: 'Redis pub/sub integration', done: true },
+      { text: 'Frontend notification bell UI', done: false },
+      { text: 'Reconnection logic', done: false },
+    ]
+  },
+  {
+    id: 'TN-044', status: 'inprogress', priority: 'high', pts: 5,
+    title: 'Implement dark mode across main application',
+    desc: 'Add CSS variable-based theming with localStorage persistence. Follow WCAG 2.1 AA contrast ratios.',
+    assignee: 'SK', team: 'Frontend', due: '2026-05-01',
+    tags: ['ui', 'accessibility', 'theming'],
+    subtasks: [
+      { text: 'CSS variable system', done: true },
+      { text: 'Dark palette tokens', done: true },
+      { text: 'Component audit', done: false },
+    ]
+  },
+  {
+    id: 'TN-048', status: 'inprogress', priority: 'medium', pts: 3,
+    title: 'Set up Kubernetes horizontal pod autoscaling',
+    desc: 'Configure HPA for core API deployment with CPU/memory thresholds. Integrate with Prometheus metrics adapter.',
+    assignee: 'OF', team: 'DevOps', due: '2026-05-02',
+    tags: ['k8s', 'infra', 'scaling'],
+    subtasks: [
+      { text: 'Prometheus metrics adapter', done: true },
+      { text: 'HPA manifest', done: false },
+      { text: 'Stress test autoscale', done: false },
+    ]
+  },
+  {
+    id: 'TN-053', status: 'inprogress', priority: 'medium', pts: 5,
+    title: 'Migrate CI/CD pipeline to GitHub Actions',
+    desc: 'Replace Jenkins workflows with GitHub Actions. Configure matrix builds, caching, and automated rollback gates.',
+    assignee: 'OF', team: 'DevOps', due: '2026-05-01',
+    tags: ['ci-cd', 'devops', 'github-actions'],
+    subtasks: [
+      { text: 'Audit Jenkins jobs', done: true },
+      { text: 'Build GH Actions workflows', done: true },
+      { text: 'Migrate secret store', done: false },
+    ]
+  },
+
+  // IN REVIEW
+  {
+    id: 'TN-031', status: 'review', priority: 'high', pts: 8,
+    title: 'Redesign dashboard home page with new metric cards',
+    desc: 'Replace legacy table-heavy layout with card-based KPI dashboard. New design system components, animated counters.',
+    assignee: 'SK', team: 'Frontend', due: '2026-04-29',
+    tags: ['ui', 'redesign', 'dashboard'],
+    subtasks: [
+      { text: 'Mockup signed off', done: true },
+      { text: 'Component implementation', done: true },
+      { text: 'QA pass', done: false },
+    ]
+  },
+  {
+    id: 'TN-035', status: 'review', priority: 'critical', pts: 8,
+    title: 'Patch XSS vulnerability in rich-text editor',
+    desc: 'Sanitize HTML output using DOMPurify with a strict allowlist. Backport fix to v3.2 and v3.3 maintenance branches.',
+    assignee: 'PN', team: 'QA / Security', due: '2026-04-28',
+    tags: ['security', 'bugfix', 'xss'],
+    subtasks: [
+      { text: 'Reproduce and isolate', done: true },
+      { text: 'Implement DOMPurify', done: true },
+      { text: 'Regression tests', done: true },
+      { text: 'Backport to v3.2/3.3', done: false },
+    ]
+  },
+  {
+    id: 'TN-040', status: 'review', priority: 'medium', pts: 3,
+    title: 'Write integration tests for billing module',
+    desc: 'Cover Stripe webhook handlers, subscription lifecycle, proration calculations, and failed payment retries.',
+    assignee: 'PN', team: 'QA / Security', due: '2026-04-30',
+    tags: ['testing', 'billing', 'stripe'],
+    subtasks: []
+  },
+
+  // DONE
+  {
+    id: 'TN-022', status: 'done', priority: 'high', pts: 5,
+    title: 'Upgrade Node.js runtime from v18 to v22 LTS',
+    desc: 'Full runtime upgrade across all services. Updated Dockerfile base images and validated compatibility.',
+    assignee: 'OF', team: 'DevOps', due: '2026-04-25',
+    tags: ['infra', 'node', 'upgrade'],
+    subtasks: [
+      { text: 'Dependency audit', done: true },
+      { text: 'Staging validation', done: true },
+      { text: 'Production rollout', done: true },
+    ]
+  },
+  {
+    id: 'TN-024', status: 'done', priority: 'medium', pts: 3,
+    title: 'Add Slack integration for deployment notifications',
+    desc: 'Bot posts deploy start/success/failure events to #deployments channel with diff links and rollback commands.',
+    assignee: 'OF', team: 'DevOps', due: '2026-04-24',
+    tags: ['slack', 'integrations', 'notifications'],
+    subtasks: []
+  },
+  {
+    id: 'TN-026', status: 'done', priority: 'high', pts: 8,
+    title: 'Launch multi-tenant data isolation layer',
+    desc: 'Row-level security in PostgreSQL enforced at the ORM layer. Verified with cross-tenant penetration tests.',
+    assignee: 'AC', team: 'Platform', due: '2026-04-26',
+    tags: ['multi-tenant', 'security', 'database'],
+    subtasks: [
+      { text: 'RLS policy design', done: true },
+      { text: 'ORM middleware', done: true },
+      { text: 'Pen test', done: true },
+    ]
+  },
+  {
+    id: 'TN-028', status: 'done', priority: 'medium', pts: 3,
+    title: 'Implement automated accessibility audit in CI',
+    desc: 'axe-core integrated into Playwright test suite. PRs with new a11y violations are blocked from merging.',
+    assignee: 'PN', team: 'QA / Security', due: '2026-04-22',
+    tags: ['accessibility', 'ci', 'testing'],
+    subtasks: []
+  },
+];
+
+const COLS = [
+  { key: 'todo',       label: 'To Do',       dot: 'dot-todo' },
+  { key: 'inprogress', label: 'In Progress',  dot: 'dot-inprogress' },
+  { key: 'review',     label: 'In Review',    dot: 'dot-review' },
+  { key: 'done',       label: 'Done',         dot: 'dot-done' },
+];
+
+let activeFilter = 'all';
+let selectedTaskId = null;
+
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderBoard();
+}
+
+function matchFilter(t) {
+  if (activeFilter === 'mine') return t.assignee === 'AC'; // current user = Alex Chen
+  if (['critical','high','medium','low'].includes(activeFilter)) return t.priority === activeFilter;
+  return true;
+}
+
+function matchSearch(t) {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  if (!q) return true;
+  return t.title.toLowerCase().includes(q) || t.id.toLowerCase().includes(q) ||
+         (t.tags && t.tags.some(tag => tag.includes(q)));
+}
+
+function renderBoard() {
+  updateStats();
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  COLS.forEach(col => {
+    const filtered = tasks.filter(t => t.status === col.key && matchFilter(t) && matchSearch(t));
+    const div = document.createElement('div');
+    div.className = 'column';
+    div.innerHTML = `
+      <div class="column-header">
+        <div class="col-dot ${col.dot}"></div>
+        <div class="column-title">${col.label}</div>
+        <div class="col-count">${filtered.length}</div>
+      </div>
+      <div class="task-list" id="col-${col.key}">
+        ${filtered.map(t => renderCard(t)).join('')}
+        <button class="add-task-btn" onclick="showToast('➕ Task creation coming soon!')">＋ Add task</button>
+      </div>`;
+    board.appendChild(div);
+  });
+}
+
+function renderCard(t) {
+  const m = TEAM[t.assignee];
+  const dueDate = new Date(t.due);
+  const today = new Date('2026-05-05');
+  const overdue = dueDate < today && t.status !== 'done';
+  const dueFmt = dueDate.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  const doneSubs = t.subtasks ? t.subtasks.filter(s=>s.done).length : 0;
+  const totalSubs = t.subtasks ? t.subtasks.length : 0;
+  const blockedBadge = t.blocked ? `<span style="font-size:10px;color:#f87171;font-weight:700;margin-left:4px;">⛔ Blocked</span>` : '';
+  const subInfo = totalSubs > 0 ? `<span class="task-pts"><span>${doneSubs}/${totalSubs}</span> tasks</span>` : '';
+  return `
+    <div class="task-card" onclick="openModal('${t.id}')">
+      <div class="task-top">
+        <span class="task-id">${t.id} ${blockedBadge}</span>
+        <span class="task-priority priority-${t.priority}">${t.priority}</span>
+      </div>
+      <div class="task-title">${t.title}</div>
+      <div class="task-tags">${(t.tags||[]).slice(0,3).map(tag=>`<span class="tag">${tag}</span>`).join('')}</div>
+      <div class="task-footer">
+        <div class="task-assignee" style="background:${m.color}" title="${m.name}">${t.assignee}</div>
+        <div class="task-meta">
+          ${subInfo}
+          <span class="task-pts">⬡ <span>${t.pts}</span> pts</span>
+          <span class="task-due ${overdue?'overdue':''}">${dueFmt}</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function updateStats() {
+  const total = tasks.length;
+  const done = tasks.filter(t=>t.status==='done').length;
+  const inp = tasks.filter(t=>t.status==='inprogress').length;
+  const blocked = tasks.filter(t=>t.blocked).length;
+  const ptsDelivered = tasks.filter(t=>t.status==='done').reduce((a,t)=>a+t.pts,0);
+  const ptsTotal = tasks.reduce((a,t)=>a+t.pts,0);
+  const pct = Math.round((ptsDelivered/ptsTotal)*100);
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statInProg').textContent = inp;
+  document.getElementById('statBlocked').textContent = blocked;
+  document.getElementById('statPts').textContent = ptsDelivered;
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('progFill').style.width = pct + '%';
+}
+
+function openModal(id) {
+  const t = tasks.find(x=>x.id===id);
+  if (!t) return;
+  selectedTaskId = id;
+  const m = TEAM[t.assignee];
+  document.getElementById('mTitle').textContent = t.title;
+  document.getElementById('mId').textContent = t.id;
+  document.getElementById('mPriority').textContent = t.priority.charAt(0).toUpperCase()+t.priority.slice(1);
+  document.getElementById('mAssignee').textContent = m.name + ' (' + m.role + ')';
+  document.getElementById('mPts').textContent = t.pts + ' pts';
+  document.getElementById('mDue').textContent = new Date(t.due).toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric'});
+  document.getElementById('mTeam').textContent = t.team;
+  document.getElementById('mDesc').textContent = t.desc;
+  document.getElementById('mStatusSelect').value = t.status;
+  // tags
+  document.getElementById('mTags').innerHTML = (t.tags||[]).map(tag=>`<span class="tag">${tag}</span>`).join('');
+  // subtasks
+  const subs = t.subtasks || [];
+  if (subs.length) {
+    document.getElementById('mSubtaskSection').style.display='block';
+    document.getElementById('mSubtasks').innerHTML = subs.map((s,i)=>`
+      <div class="subtask-item">
+        <div class="subtask-check ${s.done?'checked':''}" onclick="toggleSub('${id}',${i})"></div>
+        <span class="subtask-text ${s.done?'done':''}">${s.text}</span>
+      </div>`).join('');
+  } else {
+    document.getElementById('mSubtaskSection').style.display='none';
+  }
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function toggleSub(taskId, idx) {
+  const t = tasks.find(x=>x.id===taskId);
+  if (t && t.subtasks) {
+    t.subtasks[idx].done = !t.subtasks[idx].done;
+    openModal(taskId); // re-render modal
+  }
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  renderBoard();
+}
+
+function updateTaskStatus() {
+  const t = tasks.find(x=>x.id===selectedTaskId);
+  if (!t) return;
+  t.status = document.getElementById('mStatusSelect').value;
+  if (t.status === 'done') t.blocked = false;
+  closeModalDirect();
+  showToast('✓ Task moved to "' + COLS.find(c=>c.key===t.status).label + '"');
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2800);
+}
+
+// Init
+renderBoard();
+</script>
+</body>
+</html>
