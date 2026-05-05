@@ -1,79 +1,83 @@
-# Introduction à React (en français)
+# Bienvenido al Repositorio
 
-## Qu’est-ce que React ?
-React est une bibliothèque JavaScript créée pour construire des interfaces utilisateur (UI) de manière **modulaire**, **rapide** et **maintenable**. Elle est principalement utilisée pour développer des applications web modernes basées sur des composants.
+Este repositorio contiene recursos y código para el proyecto de prueba.
 
-## Pourquoi utiliser React ?
-- **Composants réutilisables** : vous découpez l’interface en blocs indépedsadsadndants.
-- **Rendu efficace** : React met à jour le DOM de façon optimisée.
-- **Écosystème riche** : outils, bibliothèques, communauté très sadsad.asahsjahs
-- sajhsjkas
-- sakshakjshdasdasd
-- **Bonne maintenabilité** : architecture claire pour les applications qui évoluent.
-sadas
-## Concepts clés
+## Descripción
 
-### 1) Les composantsdasdas
-Un composant est une fonction (ou classe) qui retourne de l’interface.
+Este es un repositorio de demostración creado para practicar el flujo de trabajo con Git y GitHub. Aquí encontrarás ejemplos de código, documentación y otros recursos útiles.
 
-- **Composant parent** : contient d’autdasdasdres composants.
-- **Composant enfant** : reçoit des données du parent.
-sadasd
-### 2) JSX
-JSX est une syntaxe qui ressemble à dudasdasdasd HTML dans JsadasdavaScript.sasjkhsjka
-asajsgbajhssadsadsa
-dasdasd
-Exemple :
-```jsx
-const element = <h1>Bonjour React</h1>;
+## Requisitos previos
+
+Antes de comenzar, asegúrate de tener instalado lo siguiente:
+
+- [Git](https://git-scm.com/) (versión 2.0 o superior)
+- [Node.js](https://nodejs.org/) (versión 16 o superior)
+- Un editor de código como [Visual Studio Code](https://code.visualstudio.com/)
+
+## Instalación
+
+Sigue estos pasos para configurar el proyecto en tu máquina local:
+
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/krishna2700/dummy-repo.git
+   ```
+
+2. Entra al directorio del proyecto:
+   ```bash
+   cd dummy-repo
+   ```
+
+3. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+
+## Uso
+
+Para ejecutar el proyecto, utiliza el siguiente comando:
+
+```bash
+npm start
 ```
 
-### 3) Props
-Les **props** sont des données passées d’un composant parent vers un compossasjkashjks
-asjajshaant enfant.
-Elles sont en lecture seule dans le composant enfant.
+Para ejecutar las pruebas:
 
-### 4) State
-Le **state** représente les données internes d’un composant qui peuvent changer dans le temps (interaction utilisateur, réponse API, etc.).
-
-### 5) Flux de données unidirectionnel
-En React, les données circulent principalement du parent vers l’enfant. Ce modèle rend le comportement de l’application plus prévisible.
-
-## Hooks essentiels
-
-### useState
-Permet de gérer un état local dans un composant fonctionnel.
-
-### useEffect
-Permet d’exécuter des effets secondaires (appel API, abonnement, timers, etc.) après le rendu.
-
-## Exemple minimal
-
-```jsx
-import { useState } from 'react';
-
-function Compteur() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <div>
-      <p>Compteur : {count}</p>
-      <button onClick={() => setCount(count + 1)}>
-        Incrémenter
-      </button>
-    </div>
-  );
-}
-
-export default Compteur;
+```bash
+npm test
 ```
 
-## Bonnes pratiques pour débuter
-- Garder les composants petits et lisibles.
-- Nommer clairement les composants et les variables.
-- Éviter la logique métier trop lourde dans l’UI.
-- Factoriser les parties réutilisables.
-- Ajouter des tests au fur et à mesure de la croissance du projet.
+## Estructura del proyecto
 
-## Conclusion
-React est une excellente porte d’entrée pour construire des interfaces modernes et robustes. En maîtrisant composants, props, state et hooks, vous pouvez développer des applications évolutives et professionnelles.
+```
+dummy-repo/
+├── README.md          # Este archivo de documentación
+├── package.json       # Configuración del proyecto y dependencias
+├── src/               # Código fuente principal
+│   ├── index.js       # Punto de entrada de la aplicación
+│   └── utils/         # Funciones y utilidades auxiliares
+├── tests/             # Archivos de prueba
+└── docs/              # Documentación adicional
+```
+
+## Contribuciones
+
+¡Las contribuciones son bienvenidas! Si deseas colaborar en este proyecto, sigue estos pasos:
+
+1. Haz un fork del repositorio.
+2. Crea una nueva rama con tu funcionalidad: `git checkout -b nueva-funcionalidad`
+3. Realiza tus cambios y confirma los commits: `git commit -m "Agrega nueva funcionalidad"`
+4. Envía tus cambios a tu fork: `git push origin nueva-funcionalidad`
+5. Abre un Pull Request en este repositorio.
+
+## Licencia
+
+Este proyecto está bajo la licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles.
+
+## Contacto
+
+Si tienes preguntas o sugerencias, no dudes en abrir un [issue](https://github.com/krishna2700/dummy-repo/issues) o contactarnos directamente.
+
+---
+
+*Hecho con dedicación y esfuerzo.*
