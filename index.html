@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Auto README Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2d3148;
+      --accent: #6c63ff;
+      --accent-hover: #7c73ff;
+      --accent-glow: rgba(108,99,255,0.25);
+      --text: #e8eaf6;
+      --muted: #8b90b0;
+      --green: #4ade80;
+      --red: #f87171;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface);
+    }
+    header .logo {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    header h1 { font-size: 1.2rem; font-weight: 700; }
+    header span { color: var(--muted); font-size: 0.85rem; margin-left: 4px; font-weight: 400; }
+
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 0;
+      height: calc(100vh - 65px);
+    }
+
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field input, .field select, .field textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .field textarea { resize: vertical; min-height: 80px; }
+    .field select option { background: var(--surface2); }
+
+    .lang-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .lang-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: inherit;
+      font-weight: 500;
+      transition: all 0.15s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .lang-btn:hover { border-color: var(--accent); background: var(--accent-glow); }
+    .lang-btn.active { border-color: var(--accent); background: var(--accent-glow); color: #a78bfa; }
+    .lang-btn .flag { font-size: 1rem; }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer;
+      font-size: 0.88rem;
+    }
+    .checkbox-row input[type=checkbox] {
+      width: 16px; height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .sections-grid {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 20px var(--accent-glow);
+      letter-spacing: 0.01em;
+    }
+    .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--accent-glow); }
+    .generate-btn:active { transform: translateY(0); }
+    .generate-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .output-pane {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    .output-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+    .output-toolbar .tab-group { display: flex; gap: 4px; }
+    .tab-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.83rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn.active { background: var(--surface2); border-color: var(--border); color: var(--text); }
+    .tab-btn:hover:not(.active) { color: var(--text); }
+
+    .action-btns { display: flex; gap: 8px; }
+    .action-btn {
+      padding: 7px 14px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .action-btn.success { border-color: var(--green); color: var(--green); }
+
+    .file-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 3px 8px;
+    }
+
+    .output-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+      position: relative;
+    }
+
+    #raw-view {
+      padding: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.75;
+      color: #c9d1f5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    #preview-view {
+      padding: 32px 40px;
+      line-height: 1.75;
+      color: var(--text);
+      max-width: 820px;
+    }
+    #preview-view h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; border-bottom: 2px solid var(--border); padding-bottom: 12px; }
+    #preview-view h2 { font-size: 1.2rem; font-weight: 700; margin: 24px 0 8px; color: #a78bfa; }
+    #preview-view h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 6px; }
+    #preview-view p { color: var(--muted); margin-bottom: 10px; }
+    #preview-view code { font-family: 'JetBrains Mono', monospace; background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: #a78bfa; }
+    #preview-view pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-x: auto; margin: 12px 0; }
+    #preview-view pre code { background: none; padding: 0; color: #c9d1f5; font-size: 0.85rem; }
+    #preview-view ul, #preview-view ol { padding-left: 20px; color: var(--muted); margin-bottom: 10px; }
+    #preview-view li { margin-bottom: 4px; }
+    #preview-view table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+    #preview-view th, #preview-view td { border: 1px solid var(--border); padding: 8px 12px; font-size: 0.88rem; }
+    #preview-view th { background: var(--surface2); font-weight: 600; }
+    #preview-view blockquote { border-left: 3px solid var(--accent); padding: 6px 16px; color: var(--muted); background: var(--surface); border-radius: 0 6px 6px 0; margin: 10px 0; }
+    #preview-view a { color: var(--accent); text-decoration: none; }
+    #preview-view hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+    #preview-view .badge { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-size: 0.78rem; margin: 2px; font-family: 'JetBrains Mono', monospace; }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 16px;
+      color: var(--muted);
+      text-align: center;
+      padding: 40px;
+    }
+    .empty-state .icon { font-size: 4rem; opacity: 0.3; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); }
+    .empty-state p { font-size: 0.88rem; max-width: 300px; }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    @media (max-width: 768px) {
+      main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
+      .sidebar { max-height: 60vh; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📄</div>
+  <h1>Auto README Generator <span>— any language, one click</span></h1>
+</header>
+
+<main>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="field">
+      <label>Project Name</label>
+      <input id="projName" type="text" placeholder="e.g. my-awesome-app" value="my-awesome-app"/>
+    </div>
+
+    <div class="field">
+      <label>Short Description</label>
+      <input id="projDesc" type="text" placeholder="What does this project do?" value="A blazing-fast web application built with modern tools"/>
+    </div>
+
+    <div class="field">
+      <label>Tech Stack / Language</label>
+      <input id="techStack" type="text" placeholder="e.g. Python, React, Node.js" value="React, Node.js, MongoDB"/>
+    </div>
+
+    <div class="field">
+      <label>Author / GitHub Username</label>
+      <input id="author" type="text" placeholder="your-github-username" value="krishna2700"/>
+    </div>
+
+    <div>
+      <div class="section-title" style="margin-bottom:10px;">README Language</div>
+      <div class="lang-grid" id="langGrid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title" style="margin-bottom:10px;">Include Sections</div>
+      <div class="sections-grid" id="sectionsGrid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Badge Style</label>
+      <select id="badgeStyle">
+        <option value="flat">Flat</option>
+        <option value="flat-square">Flat Square</option>
+        <option value="for-the-badge" selected>For The Badge</option>
+        <option value="plastic">Plastic</option>
+      </select>
+    </div>
+
+    <button class="generate-btn" id="generateBtn" onclick="generateReadme()">
+      <span>✦</span> Generate README
+    </button>
+
+  </aside>
+
+  <!-- OUTPUT -->
+  <section class="output-pane">
+    <div class="output-toolbar">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="tab-group">
+          <button class="tab-btn active" id="tabRaw" onclick="switchTab('raw')">Raw Markdown</button>
+          <button class="tab-btn" id="tabPreview" onclick="switchTab('preview')">Preview</button>
+        </div>
+        <span class="file-badge" id="fileBadge">README.md</span>
+      </div>
+      <div class="action-btns">
+        <button class="action-btn" onclick="copyReadme()" id="copyBtn">⧉ Copy</button>
+        <button class="action-btn" onclick="downloadReadme()" id="downloadBtn">↓ Download</button>
+      </div>
+    </div>
+    <div class="output-content" id="outputContent">
+      <div class="empty-state">
+        <div class="icon">🗒️</div>
+        <h3>No README generated yet</h3>
+        <p>Fill in your project details on the left, pick a language, and click <strong>Generate README</strong>.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const LANGUAGES = [
+  { code:'en',  label:'English',    flag:'🇬🇧' },
+  { code:'es',  label:'Español',    flag:'🇪🇸' },
+  { code:'fr',  label:'Français',   flag:'🇫🇷' },
+  { code:'de',  label:'Deutsch',    flag:'🇩🇪' },
+  { code:'pt',  label:'Português',  flag:'🇧🇷' },
+  { code:'zh',  label:'中文',        flag:'🇨🇳' },
+  { code:'ja',  label:'日本語',      flag:'🇯🇵' },
+  { code:'ko',  label:'한국어',      flag:'🇰🇷' },
+  { code:'ar',  label:'العربية',    flag:'🇸🇦' },
+  { code:'hi',  label:'हिन्दी',     flag:'🇮🇳' },
+  { code:'ru',  label:'Русский',    flag:'🇷🇺' },
+  { code:'it',  label:'Italiano',   flag:'🇮🇹' },
+];
+
+const SECTIONS = [
+  { key:'badges',         label:'Badges',               default:true  },
+  { key:'features',       label:'Features',             default:true  },
+  { key:'installation',   label:'Installation',         default:true  },
+  { key:'usage',          label:'Usage',                default:true  },
+  { key:'contributing',   label:'Contributing',         default:true  },
+  { key:'license',        label:'License',              default:true  },
+  { key:'demo',           label:'Demo / Screenshot',    default:false },
+  { key:'api',            label:'API Reference',        default:false },
+  { key:'tests',          label:'Running Tests',        default:false },
+  { key:'roadmap',        label:'Roadmap',              default:false },
+  { key:'acknowledgements',label:'Acknowledgements',   default:false },
+  { key:'contact',        label:'Contact',              default:false },
+];
+
+// ─── I18N TEMPLATES ────────────────────────────────────────────────────────────
+const T = {
+  en: {
+    about:'About The Project', features:'Features', installation:'Installation',
+    usage:'Usage', contributing:'Contributing', license:'License', demo:'Demo',
+    api:'API Reference', tests:'Running Tests', roadmap:'Roadmap',
+    acknowledgements:'Acknowledgements', contact:'Contact',
+    builtWith:'Built With', prereqs:'Prerequisites', steps:'Steps',
+    getStarted:'Getting Started', cloneRepo:'Clone the repository',
+    installDeps:'Install dependencies', start:'Start the project',
+    contributeText:'Contributions are welcome! Please open an issue or submit a pull request.',
+    licenseText:'Distributed under the MIT License. See `LICENSE` for more information.',
+    contactText:'Open an issue or reach out via GitHub.',
+    roadmapText:'See the open issues for a list of proposed features and known bugs.',
+    ackText:'Thanks to all contributors and open-source libraries used in this project.',
+    testText:'Run the test suite with the following command:',
+    apiText:'Full API documentation is available below.',
+    demoText:'Screenshot or demo link goes here.',
+    featList:['Fast and lightweight','Easy to configure','Well documented','Actively maintained'],
+  },
+  es: {
+    about:'Acerca del Proyecto', features:'Características', installation:'Instalación',
+    usage:'Uso', contributing:'Contribuir', license:'Licencia', demo:'Demo',
+    api:'Referencia de API', tests:'Ejecutar Pruebas', roadmap:'Hoja de Ruta',
+    acknowledgements:'Agradecimientos', contact:'Contacto',
+    builtWith:'Construido con', prereqs:'Requisitos Previos', steps:'Pasos',
+    getStarted:'Comenzando', cloneRepo:'Clona el repositorio',
+    installDeps:'Instala las dependencias', start:'Inicia el proyecto',
+    contributeText:'¡Las contribuciones son bienvenidas! Abre un issue o envía un pull request.',
+    licenseText:'Distribuido bajo la Licencia MIT. Consulta `LICENSE` para más información.',
+    contactText:'Abre un issue o contacta a través de GitHub.',
+    roadmapText:'Consulta los issues abiertos para ver las funciones propuestas.',
+    ackText:'Gracias a todos los colaboradores y bibliotecas de código abierto.',
+    testText:'Ejecuta las pruebas con el siguiente comando:',
+    apiText:'La documentación completa de la API está disponible a continuación.',
+    demoText:'La captura de pantalla o el enlace de demo van aquí.',
+    featList:['Rápido y ligero','Fácil de configurar','Bien documentado','Mantenimiento activo'],
+  },
+  fr: {
+    about:'À Propos du Projet', features:'Fonctionnalités', installation:'Installation',
+    usage:'Utilisation', contributing:'Contribuer', license:'Licence', demo:'Démo',
+    api:'Référence API', tests:'Lancer les Tests', roadmap:'Feuille de Route',
+    acknowledgements:'Remerciements', contact:'Contact',
+    builtWith:'Construit avec', prereqs:'Prérequis', steps:'Étapes',
+    getStarted:'Démarrage', cloneRepo:'Cloner le dépôt',
+    installDeps:'Installer les dépendances', start:'Démarrer le projet',
+    contributeText:'Les contributions sont les bienvenues ! Ouvrez une issue ou soumettez une pull request.',
+    licenseText:'Distribué sous la licence MIT. Voir `LICENSE` pour plus d\'informations.',
+    contactText:'Ouvrez une issue ou contactez via GitHub.',
+    roadmapText:'Consultez les issues ouvertes pour voir les fonctionnalités proposées.',
+    ackText:'Merci à tous les contributeurs et aux bibliothèques open-source utilisées.',
+    testText:'Lancez la suite de tests avec la commande suivante :',
+    apiText:'La documentation complète de l\'API est disponible ci-dessous.',
+    demoText:'La capture d\'écran ou le lien de démo se trouve ici.',
+    featList:['Rapide et léger','Facile à configurer','Bien documenté','Activement maintenu'],
+  },
+  de: {
+    about:'Über das Projekt', features:'Funktionen', installation:'Installation',
+    usage:'Verwendung', contributing:'Mitwirken', license:'Lizenz', demo:'Demo',
+    api:'API-Referenz', tests:'Tests Ausführen', roadmap:'Roadmap',
+    acknowledgements:'Danksagungen', contact:'Kontakt',
+    builtWith:'Erstellt mit', prereqs:'Voraussetzungen', steps:'Schritte',
+    getStarted:'Erste Schritte', cloneRepo:'Repository klonen',
+    installDeps:'Abhängigkeiten installieren', start:'Projekt starten',
+    contributeText:'Beiträge sind willkommen! Öffne ein Issue oder sende einen Pull Request.',
+    licenseText:'Unter der MIT-Lizenz verteilt. Siehe `LICENSE` für weitere Informationen.',
+    contactText:'Öffne ein Issue oder kontaktiere uns über GitHub.',
+    roadmapText:'Sieh dir die offenen Issues für vorgeschlagene Funktionen an.',
+    ackText:'Dank an alle Mitwirkenden und verwendeten Open-Source-Bibliotheken.',
+    testText:'Führe die Testsuite mit folgendem Befehl aus:',
+    apiText:'Die vollständige API-Dokumentation finden Sie unten.',
+    demoText:'Screenshot oder Demo-Link hier.',
+    featList:['Schnell und leichtgewichtig','Einfach zu konfigurieren','Gut dokumentiert','Aktiv gepflegt'],
+  },
+  pt: {
+    about:'Sobre o Projeto', features:'Funcionalidades', installation:'Instalação',
+    usage:'Uso', contributing:'Contribuindo', license:'Licença', demo:'Demo',
+    api:'Referência da API', tests:'Executar Testes', roadmap:'Roteiro',
+    acknowledgements:'Agradecimentos', contact:'Contato',
+    builtWith:'Feito com', prereqs:'Pré-requisitos', steps:'Passos',
+    getStarted:'Primeiros Passos', cloneRepo:'Clone o repositório',
+    installDeps:'Instale as dependências', start:'Inicie o projeto',
+    contributeText:'Contribuições são bem-vindas! Abra uma issue ou envie um pull request.',
+    licenseText:'Distribuído sob a Licença MIT. Veja `LICENSE` para mais informações.',
+    contactText:'Abra uma issue ou entre em contato via GitHub.',
+    roadmapText:'Veja os issues abertos para funcionalidades propostas.',
+    ackText:'Obrigado a todos os colaboradores e bibliotecas open-source usadas.',
+    testText:'Execute os testes com o seguinte comando:',
+    apiText:'Documentação completa da API disponível abaixo.',
+    demoText:'Screenshot ou link de demo aqui.',
+    featList:['Rápido e leve','Fácil de configurar','Bem documentado','Mantido ativamente'],
+  },
+  zh: {
+    about:'关于项目', features:'功能特性', installation:'安装',
+    usage:'使用方法', contributing:'参与贡献', license:'许可证', demo:'演示',
+    api:'API 参考', tests:'运行测试', roadmap:'路线图',
+    acknowledgements:'致谢', contact:'联系方式',
+    builtWith:'技术栈', prereqs:'前提条件', steps:'步骤',
+    getStarted:'快速开始', cloneRepo:'克隆仓库',
+    installDeps:'安装依赖', start:'启动项目',
+    contributeText:'欢迎贡献代码！请提交 Issue 或 Pull Request。',
+    licenseText:'本项目基于 MIT 许可证分发。详情请参阅 `LICENSE` 文件。',
+    contactText:'请通过 GitHub 提交 Issue 或联系我们。',
+    roadmapText:'查看开放的 Issues 了解计划中的功能和已知问题。',
+    ackText:'感谢所有贡献者和本项目使用的开源库。',
+    testText:'使用以下命令运行测试套件：',
+    apiText:'完整的 API 文档如下所示。',
+    demoText:'截图或演示链接在此处。',
+    featList:['快速轻量','易于配置','文档完善','持续维护'],
+  },
+  ja: {
+    about:'プロジェクトについて', features:'機能', installation:'インストール',
+    usage:'使い方', contributing:'コントリビューション', license:'ライセンス', demo:'デモ',
+    api:'API リファレンス', tests:'テストの実行', roadmap:'ロードマップ',
+    acknowledgements:'謝辞', contact:'お問い合わせ',
+    builtWith:'使用技術', prereqs:'前提条件', steps:'手順',
+    getStarted:'はじめに', cloneRepo:'リポジトリをクローン',
+    installDeps:'依存関係をインストール', start:'プロジェクトを起動',
+    contributeText:'コントリビューションを歓迎します！Issue を開くか PR を送ってください。',
+    licenseText:'MIT ライセンスの下で配布されています。詳しくは `LICENSE` をご覧ください。',
+    contactText:'GitHub で Issue を開くかお問い合わせください。',
+    roadmapText:'提案された機能や既知のバグについては、オープンな Issues をご覧ください。',
+    ackText:'すべての貢献者と使用しているオープンソースライブラリに感謝します。',
+    testText:'以下のコマンドでテストスイートを実行してください：',
+    apiText:'完全な API ドキュメントは以下で確認できます。',
+    demoText:'スクリーンショットまたはデモリンクはこちら。',
+    featList:['高速で軽量','簡単に設定可能','ドキュメントが充実','積極的にメンテナンス'],
+  },
+  ko: {
+    about:'프로젝트 소개', features:'기능', installation:'설치',
+    usage:'사용법', contributing:'기여하기', license:'라이선스', demo:'데모',
+    api:'API 참조', tests:'테스트 실행', roadmap:'로드맵',
+    acknowledgements:'감사의 말', contact:'연락처',
+    builtWith:'기술 스택', prereqs:'사전 요구사항', steps:'단계',
+    getStarted:'시작하기', cloneRepo:'저장소 클론',
+    installDeps:'의존성 설치', start:'프로젝트 시작',
+    contributeText:'기여를 환영합니다! 이슈를 열거나 풀 리퀘스트를 제출해 주세요.',
+    licenseText:'MIT 라이선스에 따라 배포됩니다. 자세한 내용은 `LICENSE`를 참조하세요.',
+    contactText:'GitHub에서 이슈를 열거나 문의해 주세요.',
+    roadmapText:'제안된 기능 및 알려진 버그는 열린 이슈를 확인하세요.',
+    ackText:'모든 기여자와 사용된 오픈소스 라이브러리에 감사드립니다.',
+    testText:'다음 명령으로 테스트 스위트를 실행하세요:',
+    apiText:'전체 API 문서는 아래에서 확인할 수 있습니다.',
+    demoText:'스크린샷 또는 데모 링크가 여기에 표시됩니다.',
+    featList:['빠르고 가벼움','설정이 쉬움','잘 문서화됨','활발히 유지보수'],
+  },
+  ar: {
+    about:'عن المشروع', features:'المميزات', installation:'التثبيت',
+    usage:'الاستخدام', contributing:'المساهمة', license:'الرخصة', demo:'عرض توضيحي',
+    api:'مرجع API', tests:'تشغيل الاختبارات', roadmap:'خارطة الطريق',
+    acknowledgements:'شكر وتقدير', contact:'تواصل معنا',
+    builtWith:'بُني بـ', prereqs:'المتطلبات الأساسية', steps:'الخطوات',
+    getStarted:'البدء', cloneRepo:'استنسخ المستودع',
+    installDeps:'ثبّت الاعتماديات', start:'ابدأ المشروع',
+    contributeText:'المساهمات مرحب بها! افتح issue أو أرسل pull request.',
+    licenseText:'موزع تحت رخصة MIT. انظر `LICENSE` لمزيد من المعلومات.',
+    contactText:'افتح issue أو تواصل عبر GitHub.',
+    roadmapText:'راجع Issues المفتوحة لقائمة الميزات المقترحة.',
+    ackText:'شكرًا لجميع المساهمين والمكتبات مفتوحة المصدر المستخدمة.',
+    testText:'شغّل مجموعة الاختبارات بالأمر التالي:',
+    apiText:'توثيق API الكامل متاح أدناه.',
+    demoText:'لقطة الشاشة أو رابط العرض التوضيحي هنا.',
+    featList:['سريع وخفيف الوزن','سهل الإعداد','موثق جيدًا','يُصان بنشاط'],
+  },
+  hi: {
+    about:'प्रोजेक्ट के बारे में', features:'विशेषताएं', installation:'इंस्टॉलेशन',
+    usage:'उपयोग', contributing:'योगदान', license:'लाइसेंस', demo:'डेमो',
+    api:'API संदर्भ', tests:'परीक्षण चलाना', roadmap:'रोडमैप',
+    acknowledgements:'आभार', contact:'संपर्क',
+    builtWith:'निर्मित', prereqs:'पूर्व आवश्यकताएं', steps:'चरण',
+    getStarted:'शुरू करें', cloneRepo:'रिपॉजिटरी क्लोन करें',
+    installDeps:'डिपेंडेंसी इंस्टॉल करें', start:'प्रोजेक्ट शुरू करें',
+    contributeText:'योगदान का स्वागत है! एक issue खोलें या pull request सबमिट करें।',
+    licenseText:'MIT लाइसेंस के तहत वितरित। अधिक जानकारी के लिए `LICENSE` देखें।',
+    contactText:'GitHub के माध्यम से एक issue खोलें या संपर्क करें।',
+    roadmapText:'प्रस्तावित सुविधाओं के लिए खुले issues देखें।',
+    ackText:'सभी योगदानकर्ताओं और उपयोग की गई ओपन-सोर्स लाइब्रेरी का धन्यवाद।',
+    testText:'निम्न कमांड से परीक्षण सूट चलाएं:',
+    apiText:'पूर्ण API दस्तावेज़ीकरण नीचे उपलब्ध है।',
+    demoText:'स्क्रीनशॉट या डेमो लिंक यहां।',
+    featList:['तेज़ और हल्का','आसानी से कॉन्फ़िगर करने योग्य','अच्छी तरह से प्रलेखित','सक्रिय रूप से अनुरक्षित'],
+  },
+  ru: {
+    about:'О Проекте', features:'Возможности', installation:'Установка',
+    usage:'Использование', contributing:'Вклад', license:'Лицензия', demo:'Демо',
+    api:'API Справочник', tests:'Запуск Тестов', roadmap:'Дорожная Карта',
+    acknowledgements:'Благодарности', contact:'Контакты',
+    builtWith:'Стек технологий', prereqs:'Требования', steps:'Шаги',
+    getStarted:'Начало работы', cloneRepo:'Клонировать репозиторий',
+    installDeps:'Установить зависимости', start:'Запустить проект',
+    contributeText:'Вклад приветствуется! Создайте issue или отправьте pull request.',
+    licenseText:'Распространяется под лицензией MIT. Подробнее в `LICENSE`.',
+    contactText:'Создайте issue или свяжитесь через GitHub.',
+    roadmapText:'Смотрите открытые issues для списка предложенных функций.',
+    ackText:'Спасибо всем участникам и используемым open-source библиотекам.',
+    testText:'Запустите набор тестов следующей командой:',
+    apiText:'Полная документация API доступна ниже.',
+    demoText:'Скриншот или ссылка на демо здесь.',
+    featList:['Быстрый и лёгкий','Легко настраивается','Хорошо документирован','Активно поддерживается'],
+  },
+  it: {
+    about:'Sul Progetto', features:'Funzionalità', installation:'Installazione',
+    usage:'Utilizzo', contributing:'Contribuire', license:'Licenza', demo:'Demo',
+    api:'Riferimento API', tests:'Esecuzione Test', roadmap:'Roadmap',
+    acknowledgements:'Ringraziamenti', contact:'Contatti',
+    builtWith:'Realizzato con', prereqs:'Prerequisiti', steps:'Passi',
+    getStarted:'Per Iniziare', cloneRepo:'Clona il repository',
+    installDeps:'Installa le dipendenze', start:'Avvia il progetto',
+    contributeText:'I contributi sono benvenuti! Apri una issue o invia una pull request.',
+    licenseText:'Distribuito sotto la Licenza MIT. Vedi `LICENSE` per maggiori informazioni.',
+    contactText:'Apri una issue o contatta tramite GitHub.',
+    roadmapText:'Consulta le issue aperte per funzionalità proposte e bug conosciuti.',
+    ackText:'Grazie a tutti i collaboratori e alle librerie open-source utilizzate.',
+    testText:'Esegui la suite di test con il seguente comando:',
+    apiText:'La documentazione API completa è disponibile di seguito.',
+    demoText:'Screenshot o link demo qui.',
+    featList:['Veloce e leggero','Facile da configurare','Ben documentato','Attivamente mantenuto'],
+  },
+};
+
+// ─── STATE ─────────────────────────────────────────────────────────────────────
+let selectedLang = 'en';
+let currentMarkdown = '';
+let currentTab = 'raw';
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+function init() {
+  // Build lang grid
+  const grid = document.getElementById('langGrid');
+  LANGUAGES.forEach(l => {
+    const btn = document.createElement('button');
+    btn.className = 'lang-btn' + (l.code === 'en' ? ' active' : '');
+    btn.dataset.code = l.code;
+    btn.innerHTML = `<span class="flag">${l.flag}</span>${l.label}`;
+    btn.onclick = () => selectLang(l.code);
+    grid.appendChild(btn);
+  });
+
+  // Build sections checkboxes
+  const sg = document.getElementById('sectionsGrid');
+  SECTIONS.forEach(s => {
+    const label = document.createElement('label');
+    label.className = 'checkbox-row';
+    label.innerHTML = `<input type="checkbox" id="sec_${s.key}" ${s.default ? 'checked' : ''}> ${s.label}`;
+    sg.appendChild(label);
+  });
+}
+
+function selectLang(code) {
+  selectedLang = code;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.code === code));
+  // Update file badge
+  const badge = document.getElementById('fileBadge');
+  badge.textContent = code === 'en' ? 'README.md' : `README.${code}.md`;
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabRaw').classList.toggle('active', tab === 'raw');
+  document.getElementById('tabPreview').classList.toggle('active', tab === 'preview');
+  renderOutput();
+}
+
+// ─── GENERATE ─────────────────────────────────────────────────────────────────
+function generateReadme() {
+  const name    = document.getElementById('projName').value.trim() || 'my-project';
+  const desc    = document.getElementById('projDesc').value.trim() || 'An awesome project';
+  const stack   = document.getElementById('techStack').value.trim() || 'JavaScript';
+  const author  = document.getElementById('author').value.trim() || 'user';
+  const badge   = document.getElementById('badgeStyle').value;
+  const t       = T[selectedLang] || T.en;
+  const lang    = selectedLang;
+
+  const secs = {};
+  SECTIONS.forEach(s => { secs[s.key] = document.getElementById('sec_' + s.key).checked; });
+
+  const slug = name.toLowerCase().replace(/\s+/g,'-');
+  const stackArr = stack.split(/[,\/]+/).map(s=>s.trim()).filter(Boolean);
+  const badgeColor = 'blue';
+
+  let md = '';
+
+  // Title
+  md += `<div align="center">\n\n`;
+  md += `# ${name}\n\n`;
+  md += `### ${desc}\n\n`;
+
+  // Badges
+  if (secs.badges) {
+    stackArr.forEach(tech => {
+      const label = encodeURIComponent(tech);
+      md += `![${tech}](https://img.shields.io/badge/${label}-informational?style=${badge}&logo=${label.toLowerCase()}&logoColor=white&color=6c63ff)\n`;
+    });
+    md += `![License](https://img.shields.io/badge/license-MIT-green?style=${badge})\n`;
+    md += `![Stars](https://img.shields.io/github/stars/${author}/${slug}?style=${badge})\n`;
+    md += `\n`;
+  }
+
+  md += `</div>\n\n`;
+  md += `---\n\n`;
+
+  // About
+  md += `## 📌 ${t.about}\n\n`;
+  md += `${desc}\n\n`;
+
+  // Built with
+  md += `### ${t.builtWith}\n\n`;
+  stackArr.forEach(tech => { md += `- **${tech}**\n`; });
+  md += `\n`;
+
+  // Features
+  if (secs.features) {
+    md += `## ✨ ${t.features}\n\n`;
+    t.featList.forEach(f => { md += `- ${f}\n`; });
+    md += `\n`;
+  }
+
+  // Demo
+  if (secs.demo) {
+    md += `## 🎬 ${t.demo}\n\n`;
+    md += `> ${t.demoText}\n\n`;
+    md += `![Demo](https://via.placeholder.com/800x400/1a1d27/6c63ff?text=${encodeURIComponent(name)}+Demo)\n\n`;
+  }
+
+  // Getting Started / Installation
+  if (secs.installation) {
+    md += `## 🚀 ${t.getStarted}\n\n`;
+    md += `### ${t.prereqs}\n\n`;
+    stackArr.forEach(tech => { md += `- ${tech}\n`; });
+    md += `\n`;
+    md += `### ${t.installation}\n\n`;
+    md += `#### ${t.steps}\n\n`;
+    md += `1. **${t.cloneRepo}**\n\n`;
+    md += `\`\`\`bash\ngit clone https://github.com/${author}/${slug}.git\ncd ${slug}\n\`\`\`\n\n`;
+    md += `2. **${t.installDeps}**\n\n`;
+
+    // Smart install command based on stack
+    const hasNode = stackArr.some(t => /node|react|vue|next|angular|express|npm|yarn/i.test(t));
+    const hasPy   = stackArr.some(t => /python|django|flask|fastapi/i.test(t));
+    const hasRust  = stackArr.some(t => /rust/i.test(t));
+    const hasGo    = stackArr.some(t => /go(?:lang)?/i.test(t));
+
+    if (hasNode) md += `\`\`\`bash\nnpm install\n\`\`\`\n\n`;
+    else if (hasPy) md += `\`\`\`bash\npip install -r requirements.txt\n\`\`\`\n\n`;
+    else if (hasRust) md += `\`\`\`bash\ncargo build\n\`\`\`\n\n`;
+    else if (hasGo) md += `\`\`\`bash\ngo mod tidy\n\`\`\`\n\n`;
+    else md += `\`\`\`bash\nnpm install\n\`\`\`\n\n`;
+
+    md += `3. **${t.start}**\n\n`;
+    if (hasNode) md += `\`\`\`bash\nnpm start\n# or\nnpm run dev\n\`\`\`\n\n`;
+    else if (hasPy) md += `\`\`\`bash\npython main.py\n\`\`\`\n\n`;
+    else if (hasRust) md += `\`\`\`bash\ncargo run\n\`\`\`\n\n`;
+    else if (hasGo) md += `\`\`\`bash\ngo run main.go\n\`\`\`\n\n`;
+    else md += `\`\`\`bash\nnpm start\n\`\`\`\n\n`;
+  }
+
+  // Usage
+  if (secs.usage) {
+    md += `## 📖 ${t.usage}\n\n`;
+    md += `\`\`\`bash\n# ${t.usage} example\n${slug} --help\n\`\`\`\n\n`;
+    md += `Refer to the documentation for detailed usage instructions and examples.\n\n`;
+  }
+
+  // API Reference
+  if (secs.api) {
+    md += `## 🔌 ${t.api}\n\n`;
+    md += `${t.apiText}\n\n`;
+    md += `| Endpoint | Method | Description |\n`;
+    md += `|----------|--------|-------------|\n`;
+    md += `| \`/api/v1/resource\` | \`GET\` | Retrieve all resources |\n`;
+    md += `| \`/api/v1/resource/:id\` | \`GET\` | Retrieve a single resource |\n`;
+    md += `| \`/api/v1/resource\` | \`POST\` | Create a new resource |\n`;
+    md += `| \`/api/v1/resource/:id\` | \`PUT\` | Update a resource |\n`;
+    md += `| \`/api/v1/resource/:id\` | \`DELETE\` | Delete a resource |\n\n`;
+  }
+
+  // Tests
+  if (secs.tests) {
+    md += `## 🧪 ${t.tests}\n\n`;
+    md += `${t.testText}\n\n`;
+    const hasNode = stackArr.some(t => /node|react|vue|next|angular|express|npm|yarn/i.test(t));
+    const hasPy   = stackArr.some(t => /python|django|flask|fastapi/i.test(t));
+    if (hasNode) md += `\`\`\`bash\nnpm test\n# or with coverage:\nnpm run test:coverage\n\`\`\`\n\n`;
+    else if (hasPy) md += `\`\`\`bash\npytest\n# or:\npython -m pytest --cov=.\n\`\`\`\n\n`;
+    else md += `\`\`\`bash\nnpm test\n\`\`\`\n\n`;
+  }
+
+  // Roadmap
+  if (secs.roadmap) {
+    md += `## 🗺️ ${t.roadmap}\n\n`;
+    md += `- [x] Initial release\n- [ ] Add more features\n- [ ] Improve documentation\n- [ ] Add more tests\n\n`;
+    md += `> ${t.roadmapText}\n\n`;
+  }
+
+  // Contributing
+  if (secs.contributing) {
+    md += `## 🤝 ${t.contributing}\n\n`;
+    md += `${t.contributeText}\n\n`;
+    md += `1. Fork the repository\n`;
+    md += `2. Create your feature branch (\`git checkout -b feature/amazing-feature\`)\n`;
+    md += `3. Commit your changes (\`git commit -m 'Add some amazing feature'\`)\n`;
+    md += `4. Push to the branch (\`git push origin feature/amazing-feature\`)\n`;
+    md += `5. Open a Pull Request\n\n`;
+  }
+
+  // License
+  if (secs.license) {
+    md += `## 📄 ${t.license}\n\n`;
+    md += `${t.licenseText}\n\n`;
+  }
+
+  // Acknowledgements
+  if (secs.acknowledgements) {
+    md += `## 💙 ${t.acknowledgements}\n\n`;
+    md += `${t.ackText}\n\n`;
+    stackArr.forEach(tech => { md += `- [${tech}](https://github.com)\n`; });
+    md += `\n`;
+  }
+
+  // Contact
+  if (secs.contact) {
+    md += `## 📬 ${t.contact}\n\n`;
+    md += `${t.contactText}\n\n`;
+    md += `- GitHub: [@${author}](https://github.com/${author})\n`;
+    md += `- Project: [https://github.com/${author}/${slug}](https://github.com/${author}/${slug})\n\n`;
+  }
+
+  // Footer
+  md += `---\n\n`;
+  md += `<div align="center">\n`;
+  md += `Made with ❤️ by <a href="https://github.com/${author}">@${author}</a>\n`;
+  md += `</div>\n`;
+
+  currentMarkdown = md;
+  renderOutput();
+
+  // Animate button feedback
+  const btn = document.getElementById('generateBtn');
+  btn.innerHTML = '<span>✓</span> Generated!';
+  btn.style.background = 'linear-gradient(135deg, #4ade80, #22c55e)';
+  setTimeout(() => {
+    btn.innerHTML = '<span>✦</span> Generate README';
+    btn.style.background = '';
+  }, 1800);
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderOutput() {
+  const oc = document.getElementById('outputContent');
+  if (!currentMarkdown) return;
+
+  if (currentTab === 'raw') {
+    oc.innerHTML = `<pre id="raw-view">${escapeHtml(currentMarkdown)}</pre>`;
+  } else {
+    oc.innerHTML = `<div id="preview-view">${markdownToHtml(currentMarkdown)}</div>`;
+  }
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Minimal markdown → HTML (enough for README preview)
+function markdownToHtml(md) {
+  let html = md;
+
+  // Remove div align tags (handle separately)
+  html = html.replace(/<div align="center">/g, '<div style="text-align:center">');
+
+  // Code blocks
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) =>
+    `<pre><code class="language-${lang}">${escapeHtml(code.trim())}</code></pre>`);
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Tables
+  html = html.replace(/(\|.+\|\n)(\|[-| :]+\|\n)((\|.+\|\n)*)/g, (match) => {
+    const rows = match.trim().split('\n');
+    const header = rows[0].split('|').filter(c=>c.trim()).map(c=>`<th>${c.trim()}</th>`).join('');
+    const body = rows.slice(2).map(r =>
+      '<tr>' + r.split('|').filter(c=>c.trim()).map(c=>`<td>${c.trim()}</td>`).join('') + '</tr>'
+    ).join('\n');
+    return `<table><thead><tr>${header}</tr></thead><tbody>${body}</tbody></table>\n`;
+  });
+
+  // Headers
+  html = html.replace(/^#{6}\s(.+)$/gm, '<h6>$1</h6>');
+  html = html.replace(/^#{5}\s(.+)$/gm, '<h5>$1</h5>');
+  html = html.replace(/^#{4}\s(.+)$/gm, '<h4>$1</h4>');
+  html = html.replace(/^#{3}\s(.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^#{2}\s(.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^#{1}\s(.+)$/gm, '<h1>$1</h1>');
+
+  // HR
+  html = html.replace(/^---$/gm, '<hr>');
+
+  // Bold
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+  // Italic
+  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+  // Blockquote
+  html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+
+  // Unordered list
+  html = html.replace(/(^- .+\n?)+/gm, match => {
+    const items = match.trim().split('\n').map(l => `<li>${l.replace(/^- /, '')}</li>`).join('');
+    return `<ul>${items}</ul>\n`;
+  });
+
+  // Ordered list
+  html = html.replace(/(^\d+\. .+\n?)+/gm, match => {
+    const items = match.trim().split('\n').map(l => `<li>${l.replace(/^\d+\. /, '')}</li>`).join('');
+    return `<ol>${items}</ol>\n`;
+  });
+
+  // Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+  // Images
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:8px;margin:8px 0;">');
+
+  // Badges (shield.io images)
+  // already handled by images above
+
+  // Paragraphs — wrap loose lines
+  html = html.replace(/^(?!<[a-zA-Z]).+$/gm, line => line ? `<p>${line}</p>` : '');
+
+  // Newlines
+  html = html.replace(/\n{2,}/g, '\n');
+
+  return html;
+}
+
+// ─── COPY / DOWNLOAD ──────────────────────────────────────────────────────────
+async function copyReadme() {
+  if (!currentMarkdown) return;
+  await navigator.clipboard.writeText(currentMarkdown);
+  const btn = document.getElementById('copyBtn');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '✓ Copied!';
+  btn.classList.add('success');
+  setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('success'); }, 2000);
+}
+
+function downloadReadme() {
+  if (!currentMarkdown) return;
+  const filename = selectedLang === 'en' ? 'README.md' : `README.${selectedLang}.md`;
+  const blob = new Blob([currentMarkdown], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
