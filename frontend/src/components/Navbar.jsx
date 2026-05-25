@@ -34,6 +34,11 @@ const Navbar = () => {
           <Link to={"/"}>Product Store 🛒</Link>
         </Text>
         <HStack spacing={2} alignItems={"center"}>
+          <Link to={"/dashboard"}>
+            <Button colorScheme="teal" size="sm" fontWeight="semibold">
+              Dashboard
+            </Button>
+          </Link>
           <Link to={"/readme"}>
             <Button colorScheme="purple" variant="outline" size="sm" fontWeight="semibold">
               README
