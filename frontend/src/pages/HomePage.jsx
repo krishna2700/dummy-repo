@@ -1,11 +1,12 @@
-import { Container, SimpleGrid, Text, VStack } from "@chakra-ui/react";
+import { Button, Container, SimpleGrid, Text, VStack } from "@chakra-ui/react";
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useProductStore } from "../store/product";
 import ProductCard from "../components/ProductCard";
 
 const HomePage = () => {
   const { fetchProducts, products } = useProductStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
@@ -15,6 +16,13 @@ const HomePage = () => {
   return (
     <Container maxW="container.xl" py={12}>
       <VStack spacing={8}>
+        <Button
+          colorScheme="blue"
+          onClick={() => navigate("/dashboard")}
+          px={8}
+        >
+          Go to Dashboard
+        </Button>
         <Text
           fontSize={"30"}
           fontWeight={"bold"}
