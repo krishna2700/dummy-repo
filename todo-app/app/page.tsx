@@ -166,20 +166,44 @@ export default function Home() {
           </div>
         )}
 
-        {filtered.map(todo => (
+        {filtered.map(todo => {
+          // Color scheme per status:
+          // completed  → green tint (emerald)
+          // high priority pending → red/rose tint (urgent/remaining)
+          // medium priority pending → amber tint
+          // low priority pending → indigo/blue tint
+          const cardStyle = todo.completed
+            ? "bg-emerald-900/30 border-emerald-700/40 hover:bg-emerald-900/40"
+            : todo.priority === "high"
+            ? "bg-rose-900/30 border-rose-600/40 hover:bg-rose-900/45"
+            : todo.priority === "medium"
+            ? "bg-amber-900/25 border-amber-600/35 hover:bg-amber-900/35"
+            : "bg-indigo-900/25 border-indigo-600/30 hover:bg-indigo-900/35";
+
+          const statusBadge = todo.completed
+            ? { label: "Done", cls: "bg-emerald-500/20 text-emerald-300 border border-emerald-600/40" }
+            : todo.priority === "high"
+            ? { label: "Urgent", cls: "bg-rose-500/20 text-rose-300 border border-rose-600/40" }
+            : todo.priority === "medium"
+            ? { label: "Pending", cls: "bg-amber-500/20 text-amber-300 border border-amber-600/40" }
+            : { label: "Remaining", cls: "bg-indigo-500/20 text-indigo-300 border border-indigo-600/40" };
+
+          return (
           <div
             key={todo.id}
-            className={`group flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 transition-all hover:bg-white/8 ${
-              todo.completed ? "opacity-50" : ""
-            }`}
+            className={`group flex items-center gap-3 border rounded-xl px-4 py-3.5 transition-all ${cardStyle}`}
           >
             {/* Checkbox */}
             <button
               onClick={() => toggleTodo(todo.id)}
               className={`w-5 h-5 flex-shrink-0 rounded-full border-2 flex items-center justify-center transition-all ${
                 todo.completed
-                  ? "bg-indigo-500 border-indigo-500"
-                  : "border-slate-600 hover:border-indigo-400"
+                  ? "bg-emerald-500 border-emerald-500"
+                  : todo.priority === "high"
+                  ? "border-rose-500 hover:border-rose-400"
+                  : todo.priority === "medium"
+                  ? "border-amber-500 hover:border-amber-400"
+                  : "border-indigo-500 hover:border-indigo-400"
               }`}
             >
               {todo.completed && (
@@ -206,12 +230,23 @@ export default function Home() {
               <span
                 onDoubleClick={() => startEdit(todo)}
                 className={`flex-1 text-sm select-none cursor-default ${
-                  todo.completed ? "line-through text-slate-500" : "text-slate-200"
+                  todo.completed
+                    ? "line-through text-emerald-400/70"
+                    : todo.priority === "high"
+                    ? "text-rose-100"
+                    : todo.priority === "medium"
+                    ? "text-amber-100"
+                    : "text-indigo-100"
                 }`}
               >
                 {todo.text}
               </span>
             )}
+
+            {/* Status Badge */}
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${statusBadge.cls}`}>
+              {statusBadge.label}
+            </span>
 
             {/* Priority Dot */}
             <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${PRIORITY_CONFIG[todo.priority].dot}`} title={PRIORITY_CONFIG[todo.priority].label} />
@@ -238,7 +273,8 @@ export default function Home() {
               </button>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Footer Actions */}
@@ -256,16 +292,18 @@ export default function Home() {
       {/* Stats Bar */}
       {todos.length > 0 && (
         <div className="w-full max-w-xl mt-6 grid grid-cols-3 gap-3">
-          {[
-            { label: "Total", value: todos.length },
-            { label: "Active", value: activeCount },
-            { label: "Done", value: completedCount },
-          ].map(stat => (
-            <div key={stat.label} className="bg-white/5 border border-white/10 rounded-xl py-3 text-center">
-              <div className="text-2xl font-bold text-white">{stat.value}</div>
-              <div className="text-xs text-slate-500 mt-0.5">{stat.label}</div>
-            </div>
-          ))}
+          <div className="bg-indigo-900/30 border border-indigo-600/30 rounded-xl py-3 text-center">
+            <div className="text-2xl font-bold text-indigo-200">{todos.length}</div>
+            <div className="text-xs text-indigo-400 mt-0.5">Total</div>
+          </div>
+          <div className="bg-amber-900/25 border border-amber-600/35 rounded-xl py-3 text-center">
+            <div className="text-2xl font-bold text-amber-200">{activeCount}</div>
+            <div className="text-xs text-amber-400 mt-0.5">Remaining</div>
+          </div>
+          <div className="bg-emerald-900/30 border border-emerald-700/40 rounded-xl py-3 text-center">
+            <div className="text-2xl font-bold text-emerald-200">{completedCount}</div>
+            <div className="text-xs text-emerald-400 mt-0.5">Done</div>
+          </div>
         </div>
       )}
     </div>
