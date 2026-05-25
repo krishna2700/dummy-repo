@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 
 type Priority = "low" | "medium" | "high";
 type Filter = "all" | "active" | "completed";
+type Lang = "en" | "fr" | "es";
 
 interface Todo {
   id: string;
@@ -13,10 +14,112 @@ interface Todo {
   createdAt: number;
 }
 
-const PRIORITY_CONFIG: Record<Priority, { label: string; color: string; dot: string }> = {
-  high:   { label: "High",   color: "text-rose-500",   dot: "bg-rose-500"   },
-  medium: { label: "Medium", color: "text-amber-500",  dot: "bg-amber-500"  },
-  low:    { label: "Low",    color: "text-emerald-500", dot: "bg-emerald-500" },
+const TRANSLATIONS: Record<Lang, {
+  flag: string;
+  titleMain: string;
+  titleAccent: string;
+  remaining: (n: number) => string;
+  completed: (n: number) => string;
+  placeholder: string;
+  add: string;
+  filterAll: string;
+  filterActive: string;
+  filterCompleted: string;
+  noCompleted: string;
+  noTasks: string;
+  badgeDone: string;
+  badgeUrgent: string;
+  badgePending: string;
+  badgeRemaining: string;
+  priorityLow: string;
+  priorityMedium: string;
+  priorityHigh: string;
+  statTotal: string;
+  statRemaining: string;
+  statDone: string;
+  clearCompleted: (n: number) => string;
+}> = {
+  en: {
+    flag: "🇬🇧",
+    titleMain: "My",
+    titleAccent: "Tasks",
+    remaining: (n) => `${n} task${n !== 1 ? "s" : ""} remaining`,
+    completed: (n) => `${n} completed`,
+    placeholder: "What needs to be done?",
+    add: "Add",
+    filterAll: "All",
+    filterActive: "Active",
+    filterCompleted: "Completed",
+    noCompleted: "No completed tasks yet.",
+    noTasks: "Nothing to do — enjoy your day!",
+    badgeDone: "Done",
+    badgeUrgent: "Urgent",
+    badgePending: "Pending",
+    badgeRemaining: "Remaining",
+    priorityLow: "Low",
+    priorityMedium: "Medium",
+    priorityHigh: "High",
+    statTotal: "Total",
+    statRemaining: "Remaining",
+    statDone: "Done",
+    clearCompleted: (n) => `Clear ${n} completed`,
+  },
+  fr: {
+    flag: "🇫🇷",
+    titleMain: "Mes",
+    titleAccent: "Tâches",
+    remaining: (n) => `${n} tâche${n !== 1 ? "s" : ""} restante${n !== 1 ? "s" : ""}`,
+    completed: (n) => `${n} terminée${n !== 1 ? "s" : ""}`,
+    placeholder: "Qu'est-ce qui doit être fait ?",
+    add: "Ajouter",
+    filterAll: "Tout",
+    filterActive: "Actif",
+    filterCompleted: "Terminé",
+    noCompleted: "Aucune tâche terminée.",
+    noTasks: "Rien à faire — profitez de votre journée !",
+    badgeDone: "Fait",
+    badgeUrgent: "Urgent",
+    badgePending: "En cours",
+    badgeRemaining: "Restant",
+    priorityLow: "Faible",
+    priorityMedium: "Moyen",
+    priorityHigh: "Élevé",
+    statTotal: "Total",
+    statRemaining: "Restantes",
+    statDone: "Faites",
+    clearCompleted: (n) => `Effacer ${n} terminée${n !== 1 ? "s" : ""}`,
+  },
+  es: {
+    flag: "🇪🇸",
+    titleMain: "Mis",
+    titleAccent: "Tareas",
+    remaining: (n) => `${n} tarea${n !== 1 ? "s" : ""} pendiente${n !== 1 ? "s" : ""}`,
+    completed: (n) => `${n} completada${n !== 1 ? "s" : ""}`,
+    placeholder: "¿Qué hay que hacer?",
+    add: "Añadir",
+    filterAll: "Todo",
+    filterActive: "Activo",
+    filterCompleted: "Completado",
+    noCompleted: "Aún no hay tareas completadas.",
+    noTasks: "¡Nada que hacer — disfruta tu día!",
+    badgeDone: "Hecho",
+    badgeUrgent: "Urgente",
+    badgePending: "Pendiente",
+    badgeRemaining: "Restante",
+    priorityLow: "Baja",
+    priorityMedium: "Media",
+    priorityHigh: "Alta",
+    statTotal: "Total",
+    statRemaining: "Restantes",
+    statDone: "Hechas",
+    clearCompleted: (n) => `Borrar ${n} completada${n !== 1 ? "s" : ""}`,
+  },
+};
+
+const PRIORITY_CONFIG: Record<Priority, { color: string; dot: string }> = {
+  high:   { color: "text-rose-500",    dot: "bg-rose-500"    },
+  medium: { color: "text-amber-500",   dot: "bg-amber-500"   },
+  low:    { color: "text-emerald-500", dot: "bg-emerald-500" },
 };
 
 function generateId() {
@@ -33,6 +136,10 @@ export default function Home() {
       return [];
     }
   });
+
+  const [lang, setLang] = useState<Lang>("en");
+  const t = TRANSLATIONS[lang];
+  const langs: Lang[] = ["en", "fr", "es"];
 
   const [input, setInput] = useState("");
   const [priority, setPriority] = useState<Priority>("medium");
@@ -92,14 +199,31 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900 flex flex-col items-center px-4 py-16">
+      {/* Language Switcher */}
+      <div className="absolute top-4 right-4 flex gap-1">
+        {langs.map(l => (
+          <button
+            key={l}
+            onClick={() => setLang(l)}
+            className={`text-sm px-3 py-1.5 rounded-lg font-semibold transition-all border ${
+              lang === l
+                ? "bg-indigo-600 border-indigo-500 text-white shadow"
+                : "bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            {TRANSLATIONS[l].flag} {l.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
       {/* Header */}
       <div className="mb-10 text-center">
         <h1 className="text-5xl font-extrabold tracking-tight text-white mb-2">
-          My<span className="text-indigo-400">Tasks</span>
+          {t.titleMain}<span className="text-indigo-400">{t.titleAccent}</span>
         </h1>
         <p className="text-slate-400 text-sm">
-          {activeCount} task{activeCount !== 1 ? "s" : ""} remaining
-          {completedCount > 0 && ` · ${completedCount} completed`}
+          {t.remaining(activeCount)}
+          {completedCount > 0 && ` · ${t.completed(completedCount)}`}
         </p>
       </div>
 
@@ -111,49 +235,56 @@ export default function Home() {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && addTodo()}
-            placeholder="What needs to be done?"
+            placeholder={t.placeholder}
             className="flex-1 bg-white/10 text-white placeholder-slate-500 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm"
           />
           <button
             onClick={addTodo}
             className="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold rounded-xl px-5 py-3 transition-all text-sm"
           >
-            Add
+            {t.add}
           </button>
         </div>
 
         {/* Priority Selector */}
         <div className="flex gap-2">
-          {(["low", "medium", "high"] as Priority[]).map(p => (
-            <button
-              key={p}
-              onClick={() => setPriority(p)}
-              className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
-                priority === p
-                  ? "border-white/30 bg-white/15 text-white"
-                  : "border-white/10 text-slate-500 hover:text-slate-300"
-              }`}
-            >
-              <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CONFIG[p].dot}`} />
-              {PRIORITY_CONFIG[p].label}
-            </button>
-          ))}
+          {(["low", "medium", "high"] as Priority[]).map(p => {
+            const label = p === "low" ? t.priorityLow : p === "medium" ? t.priorityMedium : t.priorityHigh;
+            return (
+              <button
+                key={p}
+                onClick={() => setPriority(p)}
+                className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
+                  priority === p
+                    ? "border-white/30 bg-white/15 text-white"
+                    : "border-white/10 text-slate-500 hover:text-slate-300"
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CONFIG[p].dot}`} />
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Filter Bar */}
       <div className="w-full max-w-xl flex gap-1 mb-4 bg-white/5 border border-white/10 rounded-xl p-1">
-        {(["all", "active", "completed"] as Filter[]).map(f => (
+        {([
+          { key: "all" as Filter, label: t.filterAll },
+          { key: "active" as Filter, label: t.filterActive },
+          { key: "completed" as Filter, label: t.filterCompleted },
+        ]).map(({ key, label }) => (
           <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`flex-1 text-xs font-semibold py-2 rounded-lg capitalize transition-all ${
-              filter === f
+            key={key}
+            onClick={() => setFilter(key)}
+            className={`flex-1 text-xs font-semibold py-2 rounded-lg transition-all ${
+              filter === key
                 ? "bg-indigo-600 text-white shadow"
                 : "text-slate-400 hover:text-white"
             }`}
           >
-            {f}
+            {label}
           </button>
         ))}
       </div>
@@ -162,16 +293,11 @@ export default function Home() {
       <div className="w-full max-w-xl flex flex-col gap-2">
         {filtered.length === 0 && (
           <div className="text-center text-slate-500 py-12 text-sm">
-            {filter === "completed" ? "No completed tasks yet." : "Nothing to do — enjoy your day!"}
+            {filter === "completed" ? t.noCompleted : t.noTasks}
           </div>
         )}
 
         {filtered.map(todo => {
-          // Color scheme per status:
-          // completed  → green tint (emerald)
-          // high priority pending → red/rose tint (urgent/remaining)
-          // medium priority pending → amber tint
-          // low priority pending → indigo/blue tint
           const cardStyle = todo.completed
             ? "bg-emerald-900/30 border-emerald-700/40 hover:bg-emerald-900/40"
             : todo.priority === "high"
@@ -181,12 +307,14 @@ export default function Home() {
             : "bg-indigo-900/25 border-indigo-600/30 hover:bg-indigo-900/35";
 
           const statusBadge = todo.completed
-            ? { label: "Done", cls: "bg-emerald-500/20 text-emerald-300 border border-emerald-600/40" }
+            ? { label: t.badgeDone,      cls: "bg-emerald-500/20 text-emerald-300 border border-emerald-600/40" }
             : todo.priority === "high"
-            ? { label: "Urgent", cls: "bg-rose-500/20 text-rose-300 border border-rose-600/40" }
+            ? { label: t.badgeUrgent,    cls: "bg-rose-500/20 text-rose-300 border border-rose-600/40" }
             : todo.priority === "medium"
-            ? { label: "Pending", cls: "bg-amber-500/20 text-amber-300 border border-amber-600/40" }
-            : { label: "Remaining", cls: "bg-indigo-500/20 text-indigo-300 border border-indigo-600/40" };
+            ? { label: t.badgePending,   cls: "bg-amber-500/20 text-amber-300 border border-amber-600/40" }
+            : { label: t.badgeRemaining, cls: "bg-indigo-500/20 text-indigo-300 border border-indigo-600/40" };
+
+          const priorityTitle = todo.priority === "low" ? t.priorityLow : todo.priority === "medium" ? t.priorityMedium : t.priorityHigh;
 
           return (
           <div
@@ -249,7 +377,7 @@ export default function Home() {
             </span>
 
             {/* Priority Dot */}
-            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${PRIORITY_CONFIG[todo.priority].dot}`} title={PRIORITY_CONFIG[todo.priority].label} />
+            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${PRIORITY_CONFIG[todo.priority].dot}`} title={priorityTitle} />
 
             {/* Actions */}
             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -284,7 +412,7 @@ export default function Home() {
             onClick={clearCompleted}
             className="text-xs text-slate-500 hover:text-rose-400 transition"
           >
-            Clear {completedCount} completed
+            {t.clearCompleted(completedCount)}
           </button>
         </div>
       )}
@@ -294,15 +422,15 @@ export default function Home() {
         <div className="w-full max-w-xl mt-6 grid grid-cols-3 gap-3">
           <div className="bg-indigo-900/30 border border-indigo-600/30 rounded-xl py-3 text-center">
             <div className="text-2xl font-bold text-indigo-200">{todos.length}</div>
-            <div className="text-xs text-indigo-400 mt-0.5">Total</div>
+            <div className="text-xs text-indigo-400 mt-0.5">{t.statTotal}</div>
           </div>
           <div className="bg-amber-900/25 border border-amber-600/35 rounded-xl py-3 text-center">
             <div className="text-2xl font-bold text-amber-200">{activeCount}</div>
-            <div className="text-xs text-amber-400 mt-0.5">Remaining</div>
+            <div className="text-xs text-amber-400 mt-0.5">{t.statRemaining}</div>
           </div>
           <div className="bg-emerald-900/30 border border-emerald-700/40 rounded-xl py-3 text-center">
             <div className="text-2xl font-bold text-emerald-200">{completedCount}</div>
-            <div className="text-xs text-emerald-400 mt-0.5">Done</div>
+            <div className="text-xs text-emerald-400 mt-0.5">{t.statDone}</div>
           </div>
         </div>
       )}
